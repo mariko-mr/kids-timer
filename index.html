@@ -11,7 +11,7 @@
     <!-- title -->
     <title>Document</title>
     <!-- favicon -->
-    <link rel="icon" href="/img/favicon.ico" />
+    <!-- <link rel="icon" href="/img/favicon.ico" /> -->
     <!-- style.css -->
     <link rel="stylesheet" href="./css/style.css" />
     <!-- Font Awesome -->
@@ -33,6 +33,16 @@
     <!-- main -->
     <main class="main">
       <div class="container">
+        <div>
+          <button onclick="startTimer(10)">10秒</button>
+          <button onclick="startTimer(30)">30秒</button>
+          <button onclick="startTimer(60)">60秒</button>
+        </div>
+        <div>
+          <label for="timerInput">秒数: </label>
+          <input type="text" class="timer-input-numbers" id="timerInput" placeholder="入力してね" inputmode="numeric" />
+          <button class="btn" onclick="startTimerFromInput()">Start</button>
+        </div>
         <canvas id="timerCanvas"></canvas>
       </div>
       <!-- /.container -->
