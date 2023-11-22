@@ -43,12 +43,12 @@ const startTimer = (duration) => {
 const startTimerFromInput = () => {
   const inputValue = parseInt(timerInput.value, 10);
 
-  if (!isNaN(inputValue) && inputValue > 0) {
+  if (!isNaN(inputValue) && 60 >= inputValue && inputValue > 0) {
     // 入力が正常な場合はタイマーを開始
     startTimer(inputValue);
   } else {
     // 入力が無効な場合はアラートなどでユーザーに通知
-    alert("0より大きな整数を入力してね");
+    alert("0~60秒の間で入力してね");
   }
 };
 
@@ -94,8 +94,8 @@ const drawColoredSection = (seconds) => {
   // パスを閉じる
   ctx.value.closePath();
 
-  // 円弧の内部を赤色で塗りつぶす
-  ctx.value.fillStyle = "#FF0000"; // 赤色
+  // 円弧の内部で塗りつぶす
+  ctx.value.fillStyle = "#f06060";
   ctx.value.fill();
 };
 
