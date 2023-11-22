@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-.vscode/
-img/
-sass/
-clock.html
-js/script.js
-=======
 # Logs
 logs
 *.log
@@ -33,4 +26,3 @@ coverage
 *.njsproj
 *.sln
 *.sw?
->>>>>>> f300b7f (Vue3の導入#7)
