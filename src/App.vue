@@ -5,7 +5,7 @@ import { ref, onMounted } from "vue";
 const canvas = ref(null);
 const ctx = ref(null);
 const timerInput = ref("");
-const timerDuration = ref(0);
+const timerDuration = ref();
 const elapsedTime = ref(0);
 const timerInterval = ref(null);
 
@@ -17,20 +17,8 @@ onMounted(() => {
   drawClockFace();
 });
 
-// 全角入力を半角入力に変換 ///////////////
-const convertInputNumber = (e) => {
-  let val = e.target.value;
-  // 全角数字を半角数字に変換
-  val = val.replace(/[０-９]/g, function (s) {
-    return "０１２３４５６７８９".indexOf(s);
-  });
-  // 半角数字以外が含まれる場合は空にする
-  if (val.match(/[^0-9]/)) val = "";
-  timerInput.value = val;
-};
-
-const startTimer = (duration) => {
-  timerDuration.value = duration; // タイマーの秒数
+const startTimer = () => {
+  timerDuration.value = parseInt(timerInput.value, 10); // タイマーの秒数
   elapsedTime.value = 0; //タイマーの初期化
 
   // Clear any existing timer intervals
@@ -38,18 +26,6 @@ const startTimer = (duration) => {
 
   // タイマー開始
   timerInterval.value = setInterval(updateTimer, 1000);
-};
-
-const startTimerFromInput = () => {
-  const inputValue = parseInt(timerInput.value, 10);
-
-  if (!isNaN(inputValue) && 60 >= inputValue && inputValue > 0) {
-    // 入力が正常な場合はタイマーを開始
-    startTimer(inputValue);
-  } else {
-    // 入力が無効な場合はアラートなどでユーザーに通知
-    alert("0~60秒の間で入力してね");
-  }
 };
 
 const updateTimer = () => {
@@ -145,22 +121,26 @@ const drawClockFace = () => {
 <template>
   <div class="container">
     <div>
-      <button @click="startTimer(10)">10秒</button>
-      <button @click="startTimer(30)">30秒</button>
-      <button @click="startTimer(60)">60秒</button>
+      <select v-model="timerInput">
+        <option value="" hidden>選択してください</option>
+        <option value="5">5秒</option>
+        <option value="10">10秒</option>
+        <option value="15">15秒</option>
+        <option value="20">20秒</option>
+        <option value="25">25秒</option>
+        <option value="30">30秒</option>
+        <option value="35">35秒</option>
+        <option value="40">40秒</option>
+        <option value="45">45秒</option>
+        <option value="50">50秒</option>
+        <option value="55">55秒</option>
+        <option value="60">60秒</option>
+      </select>
+      <button class="btn" @click="startTimer()">
+        すたーと - START -
+      </button>
     </div>
-    <div>
-      <label for="timerInput">秒数: </label>
-      <input
-        type="text"
-        id="timerInput"
-        inputmode="numeric"
-        placeholder="入力してね"
-        v-model="timerInput"
-        @input="convertInputNumber"
-      />
-      <button class="btn" @click="startTimerFromInput()">Start</button>
-    </div>
+
     <canvas ref="canvas"></canvas>
   </div>
 </template>
