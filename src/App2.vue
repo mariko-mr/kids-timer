@@ -1,13 +1,12 @@
 <script setup>
 import { ref, onMounted } from "vue";
 
+// Canvas要素の取得
 const canvas = ref(null);
 const ctx = ref(null);
-const timerMode = ref("");
-const timerInputSec = ref("");
-const timerInputMin = ref("");
-const timerDuration = ref(); // 5 ~ 3600
-const elapsedSeconds = ref(0); // 0 ~ 3600
+const timerInput = ref("");    // 選択した秒数
+const timerDuration = ref();   // 60 ~ 3600
+const elapsedTime = ref(0);    // 1 ~ 60
 const timerInterval = ref(null);
 
 // onMounted フックで canvas 要素とコンテキストを取得
@@ -18,40 +17,35 @@ onMounted(() => {
   drawClockFace();
 });
 
-const startTimer = (mode) => {
-  timerMode.value = mode;
-  if (timerMode.value === "seconds") {
-    timerDuration.value = parseInt(timerInputSec.value, 10);
-  } else if (timerMode.value === "minutes") {
-    timerDuration.value = parseInt(timerInputMin.value, 10);
-  }
+const startTimer = () => {
+  timerDuration.value = parseInt(timerInput.value, 10);
+  elapsedTime.value = 0; //経過時間の初期化
 
-  // 初期化
-  elapsedSeconds.value = 0;
   clearInterval(timerInterval.value);
-
   timerInterval.value = setInterval(updateTimer, 1000);
 };
 
 const updateTimer = () => {
-  if (elapsedSeconds.value > timerDuration.value) {
+  if (elapsedTime.value > timerDuration.value) {
+    // タイマー終了時の処理
     clearInterval(timerInterval.value);
     // alert("タイマー終了！");
   } else {
-    drawTimer(elapsedSeconds.value);
-    elapsedSeconds.value++; // 1, 2, 3 ..., 3600
+    drawTimer(elapsedTime.value);
+    elapsedTime.value++;
   }
 };
 
-const drawTimer = (time) => {
+const drawTimer = (seconds) => {
   canvas.value.width = 500;
   canvas.value.height = 500;
 
-  drawColoredSection(time); // カウントダウンの色の描画
+  drawColoredSection(seconds); // カウントダウンの色の描画
   drawClockFace(); // 文字盤の描画
 };
 
-const drawColoredSection = (time) => {
+// 選択した秒数を塗りつぶす
+const drawColoredSection = (seconds) => {
   // Canvasの中心座標を計算
   const center = { x: canvas.value.width / 2, y: canvas.value.height / 2 };
 
@@ -62,8 +56,12 @@ const drawColoredSection = (time) => {
   ctx.value.moveTo(center.x, center.y);
 
   // 円弧を描画
+  // arcメソッドの引数: (x, y, radius, startAngle, endAngle, anticlockwise)
   const startAngle = -0.5 * Math.PI;
-  const endAngle = getEndAngle(time);
+  const endAngle =
+    -0.5 * Math.PI +
+    (((360 / 60) * timerDuration.value) / 180) * Math.PI -
+    (((360 / 60) * seconds) / 180) * Math.PI;
   ctx.value.arc(center.x, center.y, center.x, startAngle, endAngle);
 
   // パスを閉じる
@@ -115,29 +113,13 @@ const drawClockFace = () => {
   }
   ctx.value.stroke();
 };
-
-const getEndAngle = (time) => {
-  if (timerMode.value === "seconds") {
-    return (
-      -0.5 * Math.PI +
-      (((360 / 60) * timerDuration.value) / 180) * Math.PI -
-      (((360 / 60) * time) / 180) * Math.PI
-    );
-  } else if (timerMode.value === "minutes") {
-    return (
-      -0.5 * Math.PI +
-      (((360 / 60) * (timerDuration.value / 60)) / 180) * Math.PI -
-      (((360 / 60) * time) / 60 / 180) * Math.PI
-    );
-  }
-};
 </script>
 
 <template>
   <div class="container">
     <div>
-      <select v-model="timerInputSec">
-        <option value="" hidden>ここからえらべるよ</option>
+      <select v-model="timerInput">
+        <option value="" hidden>えらんでね</option>
         <option value="5">5秒</option>
         <option value="10">10秒</option>
         <option value="15">15秒</option>
@@ -151,12 +133,12 @@ const getEndAngle = (time) => {
         <option value="55">55秒</option>
         <option value="60">60秒</option>
       </select>
-      <button class="btn" @click="startTimer('seconds')">すたーと</button>
+      <button class="btn" @click="startTimer()">すたーと - START -</button>
     </div>
 
     <div>
       <select v-model="timerInputMin">
-        <option value="" hidden>ここからえらべるよ</option>
+        <option value="" hidden>えらんでね</option>
         <option value="60">1分</option>
         <option value="120">2分</option>
         <option value="180">3分</option>
@@ -174,7 +156,7 @@ const getEndAngle = (time) => {
         <option value="3300">55分</option>
         <option value="3600">60分</option>
       </select>
-      <button class="btn" @click="startTimer('minutes')">すたーと</button>
+      <button class="btn" @click="startTimer()">すたーと - START -</button>
     </div>
 
     <canvas ref="canvas"></canvas>
