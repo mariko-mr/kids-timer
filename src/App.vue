@@ -78,7 +78,7 @@ const drawClockFace = () => {
   const center = { x: canvas.value.width / 2, y: canvas.value.height / 2 };
 
   // 文字盤の数字の描画
-  ctx.value.font = "20px 'sans-serif'";
+  ctx.value.font = "40px 'Inter'";
   ctx.value.textAlign = "center";
   ctx.value.textBaseline = "middle";
   ctx.value.fillStyle = "#333";
@@ -136,7 +136,7 @@ const getEndAngle = (time) => {
 <template>
   <div class="container">
     <div>
-      <select v-model="timerInputSec">
+      <select name="timerInputSec" v-model="timerInputSec">
         <option value="" hidden>ここからえらべるよ</option>
         <option value="5">5秒</option>
         <option value="10">10秒</option>
@@ -155,7 +155,7 @@ const getEndAngle = (time) => {
     </div>
 
     <div>
-      <select v-model="timerInputMin">
+      <select name="timerInputMin" v-model="timerInputMin">
         <option value="" hidden>ここからえらべるよ</option>
         <option value="60">1分</option>
         <option value="120">2分</option>
@@ -175,6 +175,7 @@ const getEndAngle = (time) => {
         <option value="3600">60分</option>
       </select>
       <button class="btn" @click="startTimer('minutes')">すたーと</button>
+      <p>あいうえお12345aiueo</p>
     </div>
 
     <canvas ref="canvas"></canvas>
