@@ -1,10 +1,7 @@
 <script setup>
-import AppHeader from "./components/AppHeader.vue";
-import TimerSelection from "./components/TimerSelection.vue";
-import TimerController from "./components/TimerController.vue";
 import { ref, onMounted } from "vue";
 
-const canvas = ref(0);
+const canvas = ref(null);
 const ctx = ref(null);
 const timerMode = ref("");
 const timerInputSec = ref("");
@@ -16,7 +13,8 @@ const timerInterval = ref(null);
 // onMounted フックで canvas 要素とコンテキストを取得
 onMounted(() => {
   ctx.value = canvas.value.getContext("2d");
-  resizeCanvas();
+  canvas.value.width = 500;
+  canvas.value.height = 500;
   drawClockFace();
 });
 
@@ -45,14 +43,10 @@ const updateTimer = () => {
   }
 };
 
-const resizeCanvas = () => {
-  const screenHeight = window.innerHeight;
-  canvas.value.width = (screenHeight - 80) * 0.95;
-  canvas.value.height = canvas.value.width;
-};
-
 const drawTimer = (time) => {
-  resizeCanvas();
+  canvas.value.width = 500;
+  canvas.value.height = 500;
+
   drawColoredSection(time); // カウントダウンの色の描画
   drawClockFace(); // 文字盤の描画
 };
@@ -76,7 +70,7 @@ const drawColoredSection = (time) => {
   ctx.value.closePath();
 
   // 円弧の内部で塗りつぶす
-  ctx.value.fillStyle = "#F07317";
+  ctx.value.fillStyle = "#f06060";
   ctx.value.fill();
 };
 
@@ -87,7 +81,7 @@ const drawClockFace = () => {
   ctx.value.font = "40px 'Inter'";
   ctx.value.textAlign = "center";
   ctx.value.textBaseline = "middle";
-  ctx.value.fillStyle = "#32383F";
+  ctx.value.fillStyle = "#333";
   for (let i = 0; i < 60; i++) {
     if (i % 5 !== 0) {
       continue;
@@ -100,7 +94,7 @@ const drawClockFace = () => {
   }
 
   // 円を等分する線の描画
-  ctx.value.strokeStyle = "#32383F"; // 線の色
+  ctx.value.strokeStyle = "#333"; // 線の色
   ctx.value.lineWidth = 1.5; // 線の幅
   ctx.value.beginPath();
   for (let i = 0; i < 60; i++) {
@@ -140,64 +134,57 @@ const getEndAngle = (time) => {
 </script>
 
 <template>
-  <header class="header container">
-    <AppHeader />
-  </header>
-
-  <main class="main container">
-    <div class="timer">
-      <canvas ref="canvas"></canvas>
+  <div class="container">
+    <div>
+      <select name="timerInputSec" v-model="timerInputSec">
+        <option value="" hidden>ここからえらべるよ</option>
+        <option value="5">5秒</option>
+        <option value="10">10秒</option>
+        <option value="15">15秒</option>
+        <option value="20">20秒</option>
+        <option value="25">25秒</option>
+        <option value="30">30秒</option>
+        <option value="35">35秒</option>
+        <option value="40">40秒</option>
+        <option value="45">45秒</option>
+        <option value="50">50秒</option>
+        <option value="55">55秒</option>
+        <option value="60">60秒</option>
+      </select>
+      <button class="btn" @click="startTimer('seconds')">すたーと</button>
     </div>
 
-    <div class="timer-items">
-      <div class="timer-selection">
-        <TimerSelection />
-      </div>
-      <div class="timer-controller">
-        <TimerController
-          v-model:timerInputSec="timerInputSec"
-          @startTimer="startTimer"
-        />
-      </div>
+    <div>
+      <select name="timerInputMin" v-model="timerInputMin">
+        <option value="" hidden>ここからえらべるよ</option>
+        <option value="60">1分</option>
+        <option value="120">2分</option>
+        <option value="180">3分</option>
+        <option value="240">4分</option>
+        <option value="300">5分</option>
+        <option value="600">10分</option>
+        <option value="900">15分</option>
+        <option value="1200">20分</option>
+        <option value="1500">25分</option>
+        <option value="1800">30分</option>
+        <option value="2100">35分</option>
+        <option value="2400">40分</option>
+        <option value="2700">45分</option>
+        <option value="3000">50分</option>
+        <option value="3300">55分</option>
+        <option value="3600">60分</option>
+      </select>
+      <button class="btn" @click="startTimer('minutes')">すたーと</button>
+      <p>あいうえお12345aiueo</p>
     </div>
-  </main>
+
+    <canvas ref="canvas"></canvas>
+  </div>
 </template>
 
-<style scoped>
+<style>
 canvas {
-  border: 2px solid var(--vt-c-black);
+  border: 2px solid #333;
   border-radius: 50%;
-}
-.header {
-  max-width: 1280px;
-  height: 80px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.container {
-  padding-left: 30px;
-  padding-right: 30px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.main {
-  display: flex;
-  flex-direction: row-reverse;
-  justify-content: center;
-}
-
-.timer-items {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 130px;
-}
-
-.timer-selection {
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
 }
 </style>
