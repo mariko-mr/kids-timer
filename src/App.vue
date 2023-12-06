@@ -1,7 +1,5 @@
 <script setup>
 import AppHeader from "./components/AppHeader.vue";
-import TimerSelection from "./components/TimerSelection.vue";
-import TimerController from "./components/TimerController.vue";
 import { ref, onMounted } from "vue";
 import Konva from "konva";
 
@@ -11,12 +9,47 @@ const circle = ref(null);
 const arc = ref(null);
 const canvas = ref(0);
 const ctx = ref(null);
-const timerMode = ref("");
-const timerInputSec = ref("");
-const timerInputMin = ref("");
-const timerDuration = ref(); // 5 ~ 3600
+const buttonMode = ref("seconds");
+const timerMode = ref("seconds");
+const timerInputSeconds = ref(30);
+const timerInputMinutes = ref(1800);
+const timerDuration = ref(0); // 5 ~ 3600
 const elapsedSeconds = ref(0); // 0 ~ 3600
-const timerInterval = ref(null);
+const timerInterval = ref(0);
+
+const seconds = [
+  { label: "5秒", value: 5 },
+  { label: "10秒", value: 10 },
+  { label: "15秒", value: 15 },
+  { label: "20秒", value: 20 },
+  { label: "25秒", value: 25 },
+  { label: "30秒", value: 30 },
+  { label: "35秒", value: 35 },
+  { label: "40秒", value: 40 },
+  { label: "45秒", value: 45 },
+  { label: "50秒", value: 50 },
+  { label: "55秒", value: 55 },
+  { label: "60秒", value: 60 },
+];
+
+const minutes = [
+  { label: "1分", value: 60 },
+  { label: "2分", value: 120 },
+  { label: "3分", value: 180 },
+  { label: "4分", value: 240 },
+  { label: "5分", value: 300 },
+  { label: "10分", value: 600 },
+  { label: "15分", value: 900 },
+  { label: "20分", value: 1200 },
+  { label: "25分", value: 1500 },
+  { label: "30分", value: 1800 },
+  { label: "35分", value: 2100 },
+  { label: "40分", value: 2400 },
+  { label: "45分", value: 2700 },
+  { label: "50分", value: 3000 },
+  { label: "55分", value: 3300 },
+  { label: "60分", value: 3600 },
+];
 
 // onMounted フックで canvas 要素とコンテキストを取得
 onMounted(() => {
@@ -24,12 +57,16 @@ onMounted(() => {
   drawClockFace();
 });
 
-const startTimer = (mode) => {
-  timerMode.value = mode;
+const changeButtonMode = (mode) => {
+  buttonMode.value = mode;
+};
+
+const startTimer = () => {
+  timerMode.value = buttonMode.value;
   if (timerMode.value === "seconds") {
-    timerDuration.value = parseInt(timerInputSec.value, 10);
+    timerDuration.value = timerInputSeconds.value;
   } else if (timerMode.value === "minutes") {
-    timerDuration.value = parseInt(timerInputMin.value, 10);
+    timerDuration.value = timerInputMinutes.value;
   }
 
   // 初期化
@@ -54,8 +91,8 @@ const initCanvas = () => {
 
   stage.value = new Konva.Stage({
     container: "container",
-    width: 600,
-    height: 600,
+    width: 610, // 600 がいいのか？
+    height: 610,
   });
 
   layer.value = new Konva.Layer();
@@ -63,7 +100,7 @@ const initCanvas = () => {
   circle.value = new Konva.Circle({
     x: stage.value.width() / 2,
     y: stage.value.height() / 2,
-    radius: 290,
+    radius: 300, // 290 がいいのか？
     fill: "#FFF",
     stroke: "#32383F",
     strokeWidth: 0,
@@ -163,7 +200,7 @@ const drawCountDown = () => {
       x: center.x,
       y: center.y,
       innerRadius: 0,
-      outerRadius: 190,
+      outerRadius: 220,
       angle: getEndAngle(),
       fill: "#f07317",
       opacity: 0.7,
@@ -177,10 +214,9 @@ const drawCountDown = () => {
 const getEndAngle = () => {
   if (timerMode.value === "seconds") {
     return (timerDuration.value - elapsedSeconds.value) * 6;
+  } else if (timerMode.value === "minutes") {
+    return (timerDuration.value / 60 - elapsedSeconds.value / 60) * 6;
   }
-  // else if (timerMode.value === "minutes") {
-  // return ((timerDuration.value - elapsedSeconds.value) * 6);
-  // }
 };
 </script>
 
@@ -196,13 +232,31 @@ const getEndAngle = () => {
 
     <div class="timer-items">
       <div class="timer-selection">
-        <TimerSelection />
+        <button class="btn" @click="changeButtonMode('seconds')">びょう</button>
+        <button class="btn" @click="changeButtonMode('minutes')">ふん</button>
+        <!-- <button class="btn" @click="changeButtonMode('hours')">とけい</button> -->
       </div>
+
       <div class="timer-controller">
-        <TimerController
-          v-model:timerInputSec="timerInputSec"
-          @start-timer="startTimer"
-        />
+        <v-select
+          v-if="buttonMode === 'seconds'"
+          v-model="timerInputSeconds"
+          :options="seconds"
+          :reduce="(seconds) => seconds.value"
+          :clearable="false"
+          placeholder="30秒"
+        ></v-select>
+
+        <v-select
+          v-if="buttonMode === 'minutes'"
+          v-model="timerInputMinutes"
+          :options="minutes"
+          :reduce="(minutes) => minutes.value"
+          :clearable="false"
+          placeholder="30分"
+        ></v-select>
+
+        <button class="btn" @click="startTimer()">すたーと</button>
       </div>
     </div>
   </main>
@@ -227,20 +281,31 @@ const getEndAngle = () => {
   display: flex;
   flex-direction: row-reverse;
   justify-content: center;
+  gap: 100px;
 }
 
-.timer{
+.timer {
 }
 .timer-items {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 130px;
+  gap: 80px;
 }
 
 .timer-selection {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 30px;
+}
+
+.timer-controller {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.v-select {
+  width: 120px;
 }
 </style>
