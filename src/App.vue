@@ -3,7 +3,12 @@ import AppHeader from "./components/AppHeader.vue";
 import TimerSelection from "./components/TimerSelection.vue";
 import TimerController from "./components/TimerController.vue";
 import { ref, onMounted } from "vue";
+import Konva from "konva";
 
+const stage = ref(null);
+const layer = ref(null);
+const circle = ref(null);
+const arc = ref(null);
 const canvas = ref(0);
 const ctx = ref(null);
 const timerMode = ref("");
@@ -15,8 +20,7 @@ const timerInterval = ref(null);
 
 // onMounted フックで canvas 要素とコンテキストを取得
 onMounted(() => {
-  ctx.value = canvas.value.getContext("2d");
-  resizeCanvas();
+  initCanvas();
   drawClockFace();
 });
 
@@ -38,104 +42,145 @@ const startTimer = (mode) => {
 const updateTimer = () => {
   if (elapsedSeconds.value > timerDuration.value) {
     clearInterval(timerInterval.value);
-    // alert("タイマー終了！");
+    alert("タイマー終了！");
   } else {
-    drawTimer(elapsedSeconds.value);
+    drawCountDown();
     elapsedSeconds.value++; // 1, 2, 3 ..., 3600
   }
 };
 
-const resizeCanvas = () => {
-  const screenHeight = window.innerHeight;
-  canvas.value.width = (screenHeight - 80) * 0.95;
-  canvas.value.height = canvas.value.width;
-};
+const initCanvas = () => {
+  ctx.value = canvas.value.getContext("2d");
 
-const drawTimer = (time) => {
-  resizeCanvas();
-  drawColoredSection(time); // カウントダウンの色の描画
-  drawClockFace(); // 文字盤の描画
-};
+  stage.value = new Konva.Stage({
+    container: "container",
+    width: 600,
+    height: 600,
+  });
 
-const drawColoredSection = (time) => {
-  // Canvasの中心座標を計算
-  const center = { x: canvas.value.width / 2, y: canvas.value.height / 2 };
+  layer.value = new Konva.Layer();
 
-  // 新しいパスを開始
-  ctx.value.beginPath();
+  circle.value = new Konva.Circle({
+    x: stage.value.width() / 2,
+    y: stage.value.height() / 2,
+    radius: 290,
+    fill: "#FFF",
+    stroke: "#32383F",
+    strokeWidth: 0,
+    shadowColor: "#32383F",
+    shadowBlur: 8,
+  });
 
-  // パスの始点を中心に移動
-  ctx.value.moveTo(center.x, center.y);
+  // レイヤーに円を追加
+  layer.value.add(circle.value);
 
-  // 円弧を描画
-  const startAngle = -0.5 * Math.PI;
-  const endAngle = getEndAngle(time);
-  ctx.value.arc(center.x, center.y, center.x, startAngle, endAngle);
-
-  // パスを閉じる
-  ctx.value.closePath();
-
-  // 円弧の内部で塗りつぶす
-  ctx.value.fillStyle = "#F07317";
-  ctx.value.fill();
+  // ステージにレイヤーを追加
+  stage.value.add(layer.value);
 };
 
 const drawClockFace = () => {
-  const center = { x: canvas.value.width / 2, y: canvas.value.height / 2 };
+  const center = { x: circle.value.x(), y: circle.value.y() };
 
   // 文字盤の数字の描画
-  ctx.value.font = "40px 'Inter'";
-  ctx.value.textAlign = "center";
-  ctx.value.textBaseline = "middle";
-  ctx.value.fillStyle = "#32383F";
   for (let i = 0; i < 60; i++) {
+    const radian = (i / 60) * 2 * Math.PI;
+
     if (i % 5 !== 0) {
       continue;
     }
 
-    const radian = (i / 60) * 2 * Math.PI;
-    const x = center.x + center.x * 0.75 * Math.sin(radian);
-    const y = center.y - center.y * 0.75 * Math.cos(radian);
-    ctx.value.fillText(i, x, y);
+    const startNumberPosition = 0.85;
+    const x = center.x + center.x * startNumberPosition * Math.sin(radian);
+    const y = center.y - center.y * startNumberPosition * Math.cos(radian);
+
+    const number = new Konva.Text({
+      x: x,
+      y: y,
+      text: i.toString(),
+      fontSize: 40,
+      fontFamily: "Inter",
+      fill: "#32383F",
+    });
+    number.offsetX(number.width() / 2);
+    number.offsetY(number.height() / 2);
+
+    layer.value.add(number);
   }
 
   // 円を等分する線の描画
-  ctx.value.strokeStyle = "#32383F"; // 線の色
-  ctx.value.lineWidth = 1.5; // 線の幅
-  ctx.value.beginPath();
   for (let i = 0; i < 60; i++) {
     const radian = (i / 60) * 2 * Math.PI;
-    const startX = center.x + center.x * Math.sin(radian);
-    const startY = center.y - center.y * Math.cos(radian);
-    const endX = center.x + center.x * 0.9 * Math.sin(radian);
-    const endY = center.y - center.y * 0.9 * Math.cos(radian);
-    ctx.value.moveTo(startX, startY);
-    ctx.value.lineTo(endX, endY);
+    const startLinePosition = 0.7;
+    const endLinePosition = startLinePosition - 0.03;
+    const startX = center.x + center.x * startLinePosition * Math.sin(radian);
+    const startY = center.y - center.y * startLinePosition * Math.cos(radian);
+    const endX = center.x + center.x * endLinePosition * Math.sin(radian);
+    const endY = center.y - center.y * endLinePosition * Math.cos(radian);
 
     if (i % 5 === 0) {
-      const endX = center.x + center.x * 0.85 * Math.sin(radian);
-      const endY = center.y - center.y * 0.85 * Math.cos(radian);
-      ctx.value.moveTo(startX, startY);
-      ctx.value.lineTo(endX, endY);
+      // 太線
+      const line = new Konva.Line({
+        points: [startX, startY, endX, endY],
+        stroke: "#5A77D5",
+        strokeWidth: 8,
+      });
+
+      const circleStart = new Konva.Circle({
+        x: startX,
+        y: startY,
+        radius: 3.5,
+        fill: "#5A77D5",
+      });
+
+      const circleEnd = new Konva.Circle({
+        x: endX,
+        y: endY,
+        radius: 3.5,
+        fill: "#5A77D5",
+      });
+
+      layer.value.add(line, circleStart, circleEnd);
+    } else if (i % 5 !== 0) {
+      // 短線
+      const line = new Konva.Line({
+        points: [startX, startY, endX, endY],
+        stroke: "#32383F",
+        strokeWidth: 1,
+      });
+
+      layer.value.add(line);
     }
   }
-  ctx.value.stroke();
 };
 
-const getEndAngle = (time) => {
-  if (timerMode.value === "seconds") {
-    return (
-      -0.5 * Math.PI +
-      (((360 / 60) * timerDuration.value) / 180) * Math.PI -
-      (((360 / 60) * time) / 180) * Math.PI
-    );
-  } else if (timerMode.value === "minutes") {
-    return (
-      -0.5 * Math.PI +
-      (((360 / 60) * (timerDuration.value / 60)) / 180) * Math.PI -
-      (((360 / 60) * time) / 60 / 180) * Math.PI
-    );
+const drawCountDown = () => {
+  const center = { x: circle.value.x(), y: circle.value.y() };
+
+  if (arc.value) {
+    arc.value.angle(getEndAngle());
+  } else {
+    arc.value = new Konva.Arc({
+      x: center.x,
+      y: center.y,
+      innerRadius: 0,
+      outerRadius: 190,
+      angle: getEndAngle(),
+      fill: "#f07317",
+      opacity: 0.7,
+      rotation: -90, // 開始角度を設定（-90度は12時の位置）
+    });
+
+    layer.value.add(arc.value);
   }
+};
+
+const getEndAngle = () => {
+  if (timerMode.value === "seconds") {
+    return (timerDuration.value - elapsedSeconds.value) * 6;
+  }
+  // else if (timerMode.value === "minutes") {
+  // return ((timerDuration.value - elapsedSeconds.value) * 6);
+  // }
 };
 </script>
 
@@ -145,7 +190,7 @@ const getEndAngle = (time) => {
   </header>
 
   <main class="main container">
-    <div class="timer">
+    <div id="container" class="timer">
       <canvas ref="canvas"></canvas>
     </div>
 
@@ -156,7 +201,7 @@ const getEndAngle = (time) => {
       <div class="timer-controller">
         <TimerController
           v-model:timerInputSec="timerInputSec"
-          @startTimer="startTimer"
+          @start-timer="startTimer"
         />
       </div>
     </div>
@@ -164,10 +209,6 @@ const getEndAngle = (time) => {
 </template>
 
 <style scoped>
-canvas {
-  border: 2px solid var(--vt-c-black);
-  border-radius: 50%;
-}
 .header {
   max-width: 1280px;
   height: 80px;
@@ -188,6 +229,8 @@ canvas {
   justify-content: center;
 }
 
+.timer{
+}
 .timer-items {
   display: flex;
   flex-direction: column;

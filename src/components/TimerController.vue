@@ -1,8 +1,8 @@
 <script setup>
 defineProps(["timerInputSec"]);
 
-const emit = defineEmits(["update:timerInputSec", "startTimer"]);
-const clickStart = (mode) => emit("startTimer", mode);
+const emit = defineEmits(["update:timerInputSec", "start-timer"]);
+const clickStart = (mode) => emit("start-timer", mode);
 </script>
 
 <template>
@@ -28,8 +28,9 @@ const clickStart = (mode) => emit("startTimer", mode);
     </select>
     <button class="btn" @click="clickStart('seconds')">すたーと</button>
   </div>
+</template>
 
-  <!-- <div>
+<!-- <div>
     <select name="timerInputMin" v-model="timerInputMin">
       <option value="" hidden>ここからえらべるよ</option>
       <option value="60">1分</option>
@@ -51,4 +52,5 @@ const clickStart = (mode) => emit("startTimer", mode);
     </select>
     <button class="btn" @click="startTimer('minutes')">すたーと</button>
   </div> -->
-</template>
+
+<style scoped></style>
