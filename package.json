@@ -8,7 +8,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.3.4"
+    "konva": "^9.2.3",
+    "vue": "^3.3.10",
+    "vue-select": "^4.0.0-beta.3"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.4.0",

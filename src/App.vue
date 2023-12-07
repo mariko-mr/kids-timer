@@ -1,31 +1,101 @@
 <script setup>
 import AppHeader from "./components/AppHeader.vue";
-import TimerSelection from "./components/TimerSelection.vue";
-import TimerController from "./components/TimerController.vue";
 import { ref, onMounted } from "vue";
+import Konva from "konva";
+
+const width = ref(window.innerHeight - 80);
+const height = ref(width.value);
+const stage = ref(null);
+const layer = ref(null);
+const circle = ref(null);
+
+const centerCircle = ref(null);
+const boldLine = ref(null);
+const circleStart = ref(null);
+const circleEnd = ref(null);
+const shortLine = ref(null);
+const arc = ref(null);
 
 const canvas = ref(0);
 const ctx = ref(null);
-const timerMode = ref("");
-const timerInputSec = ref("");
-const timerInputMin = ref("");
-const timerDuration = ref(); // 5 ~ 3600
+const buttonMode = ref("seconds");
+const timerMode = ref("seconds");
+const timerInputSeconds = ref(30);
+const timerInputMinutes = ref(1800);
+const timerDuration = ref(0); // 5 ~ 3600
 const elapsedSeconds = ref(0); // 0 ~ 3600
-const timerInterval = ref(null);
+const timerInterval = ref(0);
+
+const colorWhite = ref("#ffffff");
+const colorBlack = ref("#32383f");
+const colorMain = ref("#FFCA80");
+const colorAccent = ref("#BFE4FF");
+
+const isActive = ref({ seconds: true });
+
+const seconds = [
+  { label: "5秒", value: 5 },
+  { label: "10秒", value: 10 },
+  { label: "15秒", value: 15 },
+  { label: "20秒", value: 20 },
+  { label: "25秒", value: 25 },
+  { label: "30秒", value: 30 },
+  { label: "35秒", value: 35 },
+  { label: "40秒", value: 40 },
+  { label: "45秒", value: 45 },
+  { label: "50秒", value: 50 },
+  { label: "55秒", value: 55 },
+  { label: "60秒", value: 60 },
+];
+
+const minutes = [
+  { label: "1分", value: 60 },
+  { label: "2分", value: 120 },
+  { label: "3分", value: 180 },
+  { label: "4分", value: 240 },
+  { label: "5分", value: 300 },
+  { label: "10分", value: 600 },
+  { label: "15分", value: 900 },
+  { label: "20分", value: 1200 },
+  { label: "25分", value: 1500 },
+  { label: "30分", value: 1800 },
+  { label: "35分", value: 2100 },
+  { label: "40分", value: 2400 },
+  { label: "45分", value: 2700 },
+  { label: "50分", value: 3000 },
+  { label: "55分", value: 3300 },
+  { label: "60分", value: 3600 },
+];
 
 // onMounted フックで canvas 要素とコンテキストを取得
 onMounted(() => {
-  ctx.value = canvas.value.getContext("2d");
-  resizeCanvas();
-  drawClockFace();
+  initCanvas();
+  drawCountDown();
+  drawTimerFace();
 });
 
-const startTimer = (mode) => {
-  timerMode.value = mode;
+const changeButtonMode = (mode) => {
+  buttonMode.value = mode;
+
+  // クリックしたボタンの色をactiveにする
+  if (isActive.value[mode] === true) {
+    return;
+  }
+
+  // 全てのボタンのactiveを外してから、該当ボタンにactiveを追加
+  Object.keys(isActive.value).forEach((mode) => {
+    isActive.value[mode] = false;
+  });
+  isActive.value[mode] = true;
+};
+
+const startTimer = () => {
+  timerMode.value = buttonMode.value;
+
   if (timerMode.value === "seconds") {
-    timerDuration.value = parseInt(timerInputSec.value, 10);
+    timerDuration.value = timerInputSeconds.value;
   } else if (timerMode.value === "minutes") {
-    timerDuration.value = parseInt(timerInputMin.value, 10);
+    timerDuration.value = timerInputMinutes.value;
   }
 
   // 初期化
@@ -40,101 +110,152 @@ const updateTimer = () => {
     clearInterval(timerInterval.value);
     // alert("タイマー終了！");
   } else {
-    drawTimer(elapsedSeconds.value);
+    drawCountDown();
     elapsedSeconds.value++; // 1, 2, 3 ..., 3600
   }
 };
 
-const resizeCanvas = () => {
-  const screenHeight = window.innerHeight;
-  canvas.value.width = (screenHeight - 80) * 0.95;
-  canvas.value.height = canvas.value.width;
+const initCanvas = () => {
+  ctx.value = canvas.value.getContext("2d");
+
+  stage.value = new Konva.Stage({
+    container: "container",
+    width: width.value,
+    height: height.value,
+  });
+
+  layer.value = new Konva.Layer();
+
+  circle.value = new Konva.Circle({
+    x: width.value / 2,
+    y: height.value / 2,
+    radius: 300,
+    fill: colorWhite.value,
+    stroke: colorBlack.value,
+    strokeWidth: 0,
+    shadowColor: colorBlack.value,
+    shadowBlur: 15,
+    shadowOpacity: 0.2,
+  });
+
+  // レイヤーに円を追加
+  layer.value.add(circle.value);
+
+  // ステージにレイヤーを追加
+  stage.value.add(layer.value);
 };
 
-const drawTimer = (time) => {
-  resizeCanvas();
-  drawColoredSection(time); // カウントダウンの色の描画
-  drawClockFace(); // 文字盤の描画
-};
+const drawTimerFace = () => {
+    const center = { x: circle.value.x(), y: circle.value.y() };
 
-const drawColoredSection = (time) => {
-  // Canvasの中心座標を計算
-  const center = { x: canvas.value.width / 2, y: canvas.value.height / 2 };
+    // 中心の丸点
+    centerCircle.value = new Konva.Circle({
+      x: width.value / 2,
+      y: height.value / 2,
+      radius: 4,
+      fill: colorBlack.value,
+    });
 
-  // 新しいパスを開始
-  ctx.value.beginPath();
+    layer.value.add(centerCircle.value);
 
-  // パスの始点を中心に移動
-  ctx.value.moveTo(center.x, center.y);
+    // 文字盤の数字の描画
+    for (let i = 0; i < 60; i++) {
+      if (i % 5 !== 0) {
+        continue;
+      }
 
-  // 円弧を描画
-  const startAngle = -0.5 * Math.PI;
-  const endAngle = getEndAngle(time);
-  ctx.value.arc(center.x, center.y, center.x, startAngle, endAngle);
+      const radian = (i / 60) * 2 * Math.PI;
+      const startNumberPosition = 0.82;
+      const x = center.x + center.x * startNumberPosition * Math.sin(radian);
+      const y = center.y - center.y * startNumberPosition * Math.cos(radian);
 
-  // パスを閉じる
-  ctx.value.closePath();
+      const number = new Konva.Text({
+        x: x,
+        y: y,
+        text: i.toString(),
+        fontSize: 40,
+        fontFamily: "Inter",
+        fill: colorBlack.value,
+      });
 
-  // 円弧の内部で塗りつぶす
-  ctx.value.fillStyle = "#F07317";
-  ctx.value.fill();
-};
+      number.offsetX(number.width() / 2);
+      number.offsetY(number.height() / 2);
 
-const drawClockFace = () => {
-  const center = { x: canvas.value.width / 2, y: canvas.value.height / 2 };
-
-  // 文字盤の数字の描画
-  ctx.value.font = "40px 'Inter'";
-  ctx.value.textAlign = "center";
-  ctx.value.textBaseline = "middle";
-  ctx.value.fillStyle = "#32383F";
-  for (let i = 0; i < 60; i++) {
-    if (i % 5 !== 0) {
-      continue;
+      layer.value.add(number);
     }
 
-    const radian = (i / 60) * 2 * Math.PI;
-    const x = center.x + center.x * 0.75 * Math.sin(radian);
-    const y = center.y - center.y * 0.75 * Math.cos(radian);
-    ctx.value.fillText(i, x, y);
-  }
+    // 円を等分する線の描画
+    for (let i = 0; i < 60; i++) {
+      const radian = (i / 60) * 2 * Math.PI;
+      const startLinePosition = 0.7;
+      const endLinePosition = startLinePosition - 0.02;
+      const startX = center.x + center.x * startLinePosition * Math.sin(radian);
+      const startY = center.y - center.y * startLinePosition * Math.cos(radian);
+      const endX = center.x + center.x * endLinePosition * Math.sin(radian);
+      const endY = center.y - center.y * endLinePosition * Math.cos(radian);
 
-  // 円を等分する線の描画
-  ctx.value.strokeStyle = "#32383F"; // 線の色
-  ctx.value.lineWidth = 1.5; // 線の幅
-  ctx.value.beginPath();
-  for (let i = 0; i < 60; i++) {
-    const radian = (i / 60) * 2 * Math.PI;
-    const startX = center.x + center.x * Math.sin(radian);
-    const startY = center.y - center.y * Math.cos(radian);
-    const endX = center.x + center.x * 0.9 * Math.sin(radian);
-    const endY = center.y - center.y * 0.9 * Math.cos(radian);
-    ctx.value.moveTo(startX, startY);
-    ctx.value.lineTo(endX, endY);
+      if (i % 5 === 0) {
+        // 太線
+        boldLine.value = new Konva.Line({
+          points: [startX, startY, endX, endY],
+          stroke: colorAccent.value,
+          strokeWidth: 8,
+        });
 
-    if (i % 5 === 0) {
-      const endX = center.x + center.x * 0.85 * Math.sin(radian);
-      const endY = center.y - center.y * 0.85 * Math.cos(radian);
-      ctx.value.moveTo(startX, startY);
-      ctx.value.lineTo(endX, endY);
+        circleStart.value = new Konva.Circle({
+          x: startX,
+          y: startY,
+          radius: 3.5,
+          fill: colorAccent.value,
+        });
+
+        circleEnd.value = new Konva.Circle({
+          x: endX,
+          y: endY,
+          radius: 3.5,
+          fill: colorAccent.value,
+        });
+
+        layer.value.add(boldLine.value, circleStart.value, circleEnd.value);
+      } else if (i % 5 !== 0) {
+        // 短線
+        shortLine.value = new Konva.Line({
+          points: [startX, startY, endX, endY],
+          stroke: colorBlack.value,
+          strokeWidth: 1,
+        });
+
+        layer.value.add(shortLine.value);
+      }
     }
-  }
-  ctx.value.stroke();
 };
 
-const getEndAngle = (time) => {
+const drawCountDown = () => {
+  const center = { x: circle.value.x(), y: circle.value.y() };
+
+  if (arc.value) {
+    arc.value.angle(getEndAngle());
+  } else {
+    arc.value = new Konva.Arc({
+      x: center.x,
+      y: center.y,
+      innerRadius: 0,
+      outerRadius: 217,
+      angle: getEndAngle(),
+      fill: colorMain.value,
+      opacity: 0.8,
+      rotation: -90, // 開始角度を設定（-90度は12時の位置）
+    });
+
+    layer.value.add(arc.value);
+  }
+};
+
+const getEndAngle = () => {
   if (timerMode.value === "seconds") {
-    return (
-      -0.5 * Math.PI +
-      (((360 / 60) * timerDuration.value) / 180) * Math.PI -
-      (((360 / 60) * time) / 180) * Math.PI
-    );
+    return (timerDuration.value - elapsedSeconds.value) * 6;
   } else if (timerMode.value === "minutes") {
-    return (
-      -0.5 * Math.PI +
-      (((360 / 60) * (timerDuration.value / 60)) / 180) * Math.PI -
-      (((360 / 60) * time) / 60 / 180) * Math.PI
-    );
+    return (timerDuration.value / 60 - elapsedSeconds.value / 60) * 6;
   }
 };
 </script>
@@ -145,32 +266,61 @@ const getEndAngle = (time) => {
   </header>
 
   <main class="main container">
-    <div class="timer">
-      <canvas ref="canvas"></canvas>
+    <div id="container" class="timer">
+      <canvas ref="canvas" class="canvas"></canvas>
     </div>
 
     <div class="timer-items">
-      <div class="timer-selection">
-        <TimerSelection />
+      <div class="timer-mode">
+        <button
+          class="btn"
+          :class="{ 'is-active': isActive['seconds'] }"
+          @click="changeButtonMode('seconds')"
+        >
+          びょう(秒)
+        </button>
+        <button
+          class="btn"
+          :class="{ 'is-active': isActive['minutes'] }"
+          @click="changeButtonMode('minutes')"
+        >
+          ふん(分)
+        </button>
+        <!-- <button class="btn" @click="changeButtonMode('hours')">とけい</button> -->
       </div>
-      <div class="timer-controller">
-        <TimerController
-          v-model:timerInputSec="timerInputSec"
-          @startTimer="startTimer"
-        />
+
+      <div class="timer-select">
+        <label>ここからえらべるよ</label>
+        <v-select
+          v-if="buttonMode === 'seconds'"
+          v-model="timerInputSeconds"
+          :options="seconds"
+          :reduce="(seconds) => seconds.value"
+          :clearable="false"
+          placeholder="30秒"
+        ></v-select>
+
+        <v-select
+          v-if="buttonMode === 'minutes'"
+          v-model="timerInputMinutes"
+          :options="minutes"
+          :reduce="(minutes) => minutes.value"
+          :clearable="false"
+          placeholder="30分"
+        ></v-select>
+      </div>
+
+      <div class="timer-start">
+        <button class="btn" @click="startTimer()">すたーと</button>
       </div>
     </div>
   </main>
 </template>
 
 <style scoped>
-canvas {
-  border: 2px solid var(--vt-c-black);
-  border-radius: 50%;
-}
 .header {
   max-width: 1280px;
-  height: 80px;
+  height: 70px;
   display: flex;
   justify-content: space-between;
 }
@@ -186,18 +336,41 @@ canvas {
   display: flex;
   flex-direction: row-reverse;
   justify-content: center;
+  gap: 100px;
 }
-
 .timer-items {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 130px;
 }
 
-.timer-selection {
+.timer-mode {
   display: flex;
-  flex-direction: column;
-  gap: 40px;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.timer-select {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 80px;
+  gap: 15px;
+}
+
+.timer-start {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 120px;
+}
+
+.v-select {
+  width: 165px;
+}
+
+.is-active {
+  background-color: var(--vt-c-main);
+  color: var(--vt-c-white);
+  border: 1px solid var(--vt-c-main);
 }
 </style>

@@ -2,7 +2,7 @@
 @import "./base.css";
 
 #app {
-  /* max-width: 1280px; */
+  max-width: 1280px;
   margin: 0 auto;
 }
 
@@ -14,7 +14,7 @@ a {
 
 button {
   display: inline-block;
-  width: 200px;
+  width: 170px;
   max-width: 100%;
   padding: 15px 20px;
   background-color: var(--vt-c-white);
@@ -29,16 +29,20 @@ button {
 
 @media (hover: hover) {
   a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+    color: var(--vt-c-main);
   }
 
   button:hover {
-    background-color: rgba(240, 115, 23, 0.7);
+    background-color: var(--vt-c-main-button-hover);
     color: var(--vt-c-white);
-    font-size: 1.5rem;
-    text-align: center;
-    border: 1px solid var(--vt-c-accent);
+    border: 1px solid var(--vt-c-main);
   }
+}
+
+button:active {
+  background-color: var(--vt-c-main);
+  color: var(--vt-c-white);
+  border: 1px solid var(--vt-c-main);
 }
 
 /* @media (min-width: 1024px) {
