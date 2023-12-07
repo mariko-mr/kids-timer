@@ -22,9 +22,17 @@
   align-items: center;
 }
 
+.header__logo {
+  display: none;
+}
+
 .header__right {
   display: flex;
   align-items: center;
+}
+
+.header__nav {
+  display: none;
 }
 
 .header__menu {

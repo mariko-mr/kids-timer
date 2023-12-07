@@ -3,10 +3,19 @@ import AppHeader from "./components/AppHeader.vue";
 import { ref, onMounted } from "vue";
 import Konva from "konva";
 
+const width = ref(window.innerHeight - 80);
+const height = ref(width.value);
 const stage = ref(null);
 const layer = ref(null);
 const circle = ref(null);
+
+const centerCircle = ref(null);
+const boldLine = ref(null);
+const circleStart = ref(null);
+const circleEnd = ref(null);
+const shortLine = ref(null);
 const arc = ref(null);
+
 const canvas = ref(0);
 const ctx = ref(null);
 const buttonMode = ref("seconds");
@@ -16,6 +25,13 @@ const timerInputMinutes = ref(1800);
 const timerDuration = ref(0); // 5 ~ 3600
 const elapsedSeconds = ref(0); // 0 ~ 3600
 const timerInterval = ref(0);
+
+const colorWhite = ref("#ffffff");
+const colorBlack = ref("#32383f");
+const colorMain = ref("#FFCA80");
+const colorAccent = ref("#BFE4FF");
+
+const isActive = ref({ seconds: true });
 
 const seconds = [
   { label: "5秒", value: 5 },
@@ -54,15 +70,28 @@ const minutes = [
 // onMounted フックで canvas 要素とコンテキストを取得
 onMounted(() => {
   initCanvas();
-  drawClockFace();
+  drawCountDown();
+  drawTimerFace();
 });
 
 const changeButtonMode = (mode) => {
   buttonMode.value = mode;
+
+  // クリックしたボタンの色をactiveにする
+  if (isActive.value[mode] === true) {
+    return;
+  }
+
+  // 全てのボタンのactiveを外してから、該当ボタンにactiveを追加
+  Object.keys(isActive.value).forEach((mode) => {
+    isActive.value[mode] = false;
+  });
+  isActive.value[mode] = true;
 };
 
 const startTimer = () => {
   timerMode.value = buttonMode.value;
+
   if (timerMode.value === "seconds") {
     timerDuration.value = timerInputSeconds.value;
   } else if (timerMode.value === "minutes") {
@@ -79,7 +108,7 @@ const startTimer = () => {
 const updateTimer = () => {
   if (elapsedSeconds.value > timerDuration.value) {
     clearInterval(timerInterval.value);
-    alert("タイマー終了！");
+    // alert("タイマー終了！");
   } else {
     drawCountDown();
     elapsedSeconds.value++; // 1, 2, 3 ..., 3600
@@ -91,21 +120,22 @@ const initCanvas = () => {
 
   stage.value = new Konva.Stage({
     container: "container",
-    width: 610, // 600 がいいのか？
-    height: 610,
+    width: width.value,
+    height: height.value,
   });
 
   layer.value = new Konva.Layer();
 
   circle.value = new Konva.Circle({
-    x: stage.value.width() / 2,
-    y: stage.value.height() / 2,
-    radius: 300, // 290 がいいのか？
-    fill: "#FFF",
-    stroke: "#32383F",
+    x: width.value / 2,
+    y: height.value / 2,
+    radius: 300,
+    fill: colorWhite.value,
+    stroke: colorBlack.value,
     strokeWidth: 0,
-    shadowColor: "#32383F",
-    shadowBlur: 8,
+    shadowColor: colorBlack.value,
+    shadowBlur: 15,
+    shadowOpacity: 0.2,
   });
 
   // レイヤーに円を追加
@@ -115,79 +145,89 @@ const initCanvas = () => {
   stage.value.add(layer.value);
 };
 
-const drawClockFace = () => {
-  const center = { x: circle.value.x(), y: circle.value.y() };
+const drawTimerFace = () => {
+    const center = { x: circle.value.x(), y: circle.value.y() };
 
-  // 文字盤の数字の描画
-  for (let i = 0; i < 60; i++) {
-    const radian = (i / 60) * 2 * Math.PI;
-
-    if (i % 5 !== 0) {
-      continue;
-    }
-
-    const startNumberPosition = 0.85;
-    const x = center.x + center.x * startNumberPosition * Math.sin(radian);
-    const y = center.y - center.y * startNumberPosition * Math.cos(radian);
-
-    const number = new Konva.Text({
-      x: x,
-      y: y,
-      text: i.toString(),
-      fontSize: 40,
-      fontFamily: "Inter",
-      fill: "#32383F",
+    // 中心の丸点
+    centerCircle.value = new Konva.Circle({
+      x: width.value / 2,
+      y: height.value / 2,
+      radius: 4,
+      fill: colorBlack.value,
     });
-    number.offsetX(number.width() / 2);
-    number.offsetY(number.height() / 2);
 
-    layer.value.add(number);
-  }
+    layer.value.add(centerCircle.value);
 
-  // 円を等分する線の描画
-  for (let i = 0; i < 60; i++) {
-    const radian = (i / 60) * 2 * Math.PI;
-    const startLinePosition = 0.7;
-    const endLinePosition = startLinePosition - 0.03;
-    const startX = center.x + center.x * startLinePosition * Math.sin(radian);
-    const startY = center.y - center.y * startLinePosition * Math.cos(radian);
-    const endX = center.x + center.x * endLinePosition * Math.sin(radian);
-    const endY = center.y - center.y * endLinePosition * Math.cos(radian);
+    // 文字盤の数字の描画
+    for (let i = 0; i < 60; i++) {
+      if (i % 5 !== 0) {
+        continue;
+      }
 
-    if (i % 5 === 0) {
-      // 太線
-      const line = new Konva.Line({
-        points: [startX, startY, endX, endY],
-        stroke: "#5A77D5",
-        strokeWidth: 8,
+      const radian = (i / 60) * 2 * Math.PI;
+      const startNumberPosition = 0.82;
+      const x = center.x + center.x * startNumberPosition * Math.sin(radian);
+      const y = center.y - center.y * startNumberPosition * Math.cos(radian);
+
+      const number = new Konva.Text({
+        x: x,
+        y: y,
+        text: i.toString(),
+        fontSize: 40,
+        fontFamily: "Inter",
+        fill: colorBlack.value,
       });
 
-      const circleStart = new Konva.Circle({
-        x: startX,
-        y: startY,
-        radius: 3.5,
-        fill: "#5A77D5",
-      });
+      number.offsetX(number.width() / 2);
+      number.offsetY(number.height() / 2);
 
-      const circleEnd = new Konva.Circle({
-        x: endX,
-        y: endY,
-        radius: 3.5,
-        fill: "#5A77D5",
-      });
-
-      layer.value.add(line, circleStart, circleEnd);
-    } else if (i % 5 !== 0) {
-      // 短線
-      const line = new Konva.Line({
-        points: [startX, startY, endX, endY],
-        stroke: "#32383F",
-        strokeWidth: 1,
-      });
-
-      layer.value.add(line);
+      layer.value.add(number);
     }
-  }
+
+    // 円を等分する線の描画
+    for (let i = 0; i < 60; i++) {
+      const radian = (i / 60) * 2 * Math.PI;
+      const startLinePosition = 0.7;
+      const endLinePosition = startLinePosition - 0.02;
+      const startX = center.x + center.x * startLinePosition * Math.sin(radian);
+      const startY = center.y - center.y * startLinePosition * Math.cos(radian);
+      const endX = center.x + center.x * endLinePosition * Math.sin(radian);
+      const endY = center.y - center.y * endLinePosition * Math.cos(radian);
+
+      if (i % 5 === 0) {
+        // 太線
+        boldLine.value = new Konva.Line({
+          points: [startX, startY, endX, endY],
+          stroke: colorAccent.value,
+          strokeWidth: 8,
+        });
+
+        circleStart.value = new Konva.Circle({
+          x: startX,
+          y: startY,
+          radius: 3.5,
+          fill: colorAccent.value,
+        });
+
+        circleEnd.value = new Konva.Circle({
+          x: endX,
+          y: endY,
+          radius: 3.5,
+          fill: colorAccent.value,
+        });
+
+        layer.value.add(boldLine.value, circleStart.value, circleEnd.value);
+      } else if (i % 5 !== 0) {
+        // 短線
+        shortLine.value = new Konva.Line({
+          points: [startX, startY, endX, endY],
+          stroke: colorBlack.value,
+          strokeWidth: 1,
+        });
+
+        layer.value.add(shortLine.value);
+      }
+    }
 };
 
 const drawCountDown = () => {
@@ -200,10 +240,10 @@ const drawCountDown = () => {
       x: center.x,
       y: center.y,
       innerRadius: 0,
-      outerRadius: 220,
+      outerRadius: 217,
       angle: getEndAngle(),
-      fill: "#f07317",
-      opacity: 0.7,
+      fill: colorMain.value,
+      opacity: 0.8,
       rotation: -90, // 開始角度を設定（-90度は12時の位置）
     });
 
@@ -227,17 +267,30 @@ const getEndAngle = () => {
 
   <main class="main container">
     <div id="container" class="timer">
-      <canvas ref="canvas"></canvas>
+      <canvas ref="canvas" class="canvas"></canvas>
     </div>
 
     <div class="timer-items">
-      <div class="timer-selection">
-        <button class="btn" @click="changeButtonMode('seconds')">びょう</button>
-        <button class="btn" @click="changeButtonMode('minutes')">ふん</button>
+      <div class="timer-mode">
+        <button
+          class="btn"
+          :class="{ 'is-active': isActive['seconds'] }"
+          @click="changeButtonMode('seconds')"
+        >
+          びょう(秒)
+        </button>
+        <button
+          class="btn"
+          :class="{ 'is-active': isActive['minutes'] }"
+          @click="changeButtonMode('minutes')"
+        >
+          ふん(分)
+        </button>
         <!-- <button class="btn" @click="changeButtonMode('hours')">とけい</button> -->
       </div>
 
-      <div class="timer-controller">
+      <div class="timer-select">
+        <label>ここからえらべるよ</label>
         <v-select
           v-if="buttonMode === 'seconds'"
           v-model="timerInputSeconds"
@@ -255,7 +308,9 @@ const getEndAngle = () => {
           :clearable="false"
           placeholder="30分"
         ></v-select>
+      </div>
 
+      <div class="timer-start">
         <button class="btn" @click="startTimer()">すたーと</button>
       </div>
     </div>
@@ -265,7 +320,7 @@ const getEndAngle = () => {
 <style scoped>
 .header {
   max-width: 1280px;
-  height: 80px;
+  height: 70px;
   display: flex;
   justify-content: space-between;
 }
@@ -283,29 +338,39 @@ const getEndAngle = () => {
   justify-content: center;
   gap: 100px;
 }
-
-.timer {
-}
 .timer-items {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 80px;
 }
 
-.timer-selection {
+.timer-mode {
   display: flex;
-  flex-direction: column;
   gap: 30px;
+  margin-bottom: 30px;
 }
 
-.timer-controller {
+.timer-select {
   display: flex;
   align-items: center;
-  gap: 20px;
+  justify-content: center;
+  margin-bottom: 80px;
+  gap: 15px;
+}
+
+.timer-start {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 120px;
 }
 
 .v-select {
-  width: 120px;
+  width: 165px;
+}
+
+.is-active {
+  background-color: var(--vt-c-main);
+  color: var(--vt-c-white);
+  border: 1px solid var(--vt-c-main);
 }
 </style>

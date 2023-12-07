@@ -5,8 +5,9 @@
   --vt-c-black: #32383f;
   --vt-c-black-soft: #cccccc;
 
-  --vt-c-main: #5a77d5;
-  --vt-c-accent: #f07317;
+  --vt-c-main: #ffca80;
+  --vt-c-main-button-hover: rgba(255, 202, 128, 0.7);
+  --vt-c-accent: ##bfe4ff;
 }
 
 /* ========================
