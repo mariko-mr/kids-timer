@@ -1,4 +1,4 @@
-import "./assets/main.css";
+import "./assets/css/style.css";
 import 'vue-select/dist/vue-select.css';
 
 import { createApp } from "vue";
