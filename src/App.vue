@@ -320,12 +320,9 @@ const getEndAngle = () => {
           :options="seconds"
           :reduce="(seconds) => seconds.value"
           :clearable="false"
+          :searchable="false"
           placeholder="30秒"
-        >
-          <template #no-options="{ search, searching, loading }">
-            せんたくできないよ
-          </template></v-select
-        >
+        ></v-select>
 
         <v-select
           v-if="buttonMode === 'minutes'"
@@ -333,12 +330,10 @@ const getEndAngle = () => {
           :options="minutes"
           :reduce="(minutes) => minutes.value"
           :clearable="false"
+          :searchable="false"
           placeholder="30分"
         >
-          <template #no-options="{ search, searching, loading }">
-            せんたくできないよ
-          </template></v-select
-        >
+        </v-select>
       </div>
 
       <div class="timer-start">
@@ -355,7 +350,7 @@ const getEndAngle = () => {
   display: flex;
   justify-content: space-between;
 
-  @include mq(ls) {
+  @include mq(md) {
     height: 20px;
   }
 }
