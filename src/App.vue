@@ -37,7 +37,7 @@ const colorMain = ref("#FFCA80");
 const colorAccent = ref("#BFE4FF");
 
 const isActive = ref({ seconds: true });
-
+const breakPoint = ref("(max-width: 1023px)");
 const seconds = [
   { label: "5秒", value: 5 },
   { label: "10秒", value: 10 },
@@ -121,7 +121,7 @@ const updateTimer = () => {
 };
 
 const initCanvas = () => {
-  if (window.matchMedia("(max-width: 1023px)").matches) {
+  if (window.matchMedia(breakPoint.value).matches) {
     canvasWidth.value = 340;
     canvasHeight.value = 340;
     circleRadius.value = 160;
@@ -157,7 +157,7 @@ const initCanvas = () => {
 };
 
 const drawTimerFace = () => {
-  if (window.matchMedia("(max-width: 1023px)").matches) {
+  if (window.matchMedia(breakPoint.value).matches) {
     startNumberPosition.value = 0.75;
     sizeNumber.value = 30;
     startLinePosition.value = 0.59;
@@ -250,7 +250,7 @@ const drawTimerFace = () => {
 };
 
 const drawCountDown = () => {
-  if (window.matchMedia("(max-width: 1023px)").matches) {
+  if (window.matchMedia(breakPoint.value).matches) {
     arcOuterRadius.value = 99;
   }
 
@@ -313,7 +313,7 @@ const getEndAngle = () => {
       </div>
 
       <div class="timer-select">
-        <label>ここからえらべるよ</label>
+        <label>じかんをえらんでね</label>
         <v-select
           v-if="buttonMode === 'seconds'"
           v-model="timerInputSeconds"
@@ -321,7 +321,11 @@ const getEndAngle = () => {
           :reduce="(seconds) => seconds.value"
           :clearable="false"
           placeholder="30秒"
-        ></v-select>
+        >
+          <template #no-options="{ search, searching, loading }">
+            せんたくできないよ
+          </template></v-select
+        >
 
         <v-select
           v-if="buttonMode === 'minutes'"
@@ -330,7 +334,11 @@ const getEndAngle = () => {
           :reduce="(minutes) => minutes.value"
           :clearable="false"
           placeholder="30分"
-        ></v-select>
+        >
+          <template #no-options="{ search, searching, loading }">
+            せんたくできないよ
+          </template></v-select
+        >
       </div>
 
       <div class="timer-start">
@@ -346,6 +354,10 @@ const getEndAngle = () => {
   height: 70px;
   display: flex;
   justify-content: space-between;
+
+  @include mq(ls) {
+    height: 20px;
+  }
 }
 
 .container {
@@ -370,6 +382,13 @@ const getEndAngle = () => {
     flex-direction: column-reverse;
     align-items: center;
     gap: none;
+  }
+
+  @include mq(ls) {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    gap: 100px;
   }
 }
 
@@ -400,10 +419,14 @@ const getEndAngle = () => {
   align-items: center;
   justify-content: center;
   margin-bottom: 80px;
-  gap: 15px;
+  gap: 10px;
 
   @include mq(md) {
     margin-bottom: 30px;
+  }
+
+  @include mq(ls) {
+    gap: 5px;
   }
 }
 
@@ -423,6 +446,10 @@ const getEndAngle = () => {
   &:focus-within {
     box-shadow: 0px 0px 10px $color-main;
     outline: solid 2px $color-main;
+  }
+
+  @include mq(ls) {
+    width: 120px;
   }
 }
 
