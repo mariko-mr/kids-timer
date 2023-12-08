@@ -16,7 +16,7 @@
   <!-- /.header__right -->
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .header__left {
   display: flex;
   align-items: center;

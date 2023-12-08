@@ -3,21 +3,26 @@ import AppHeader from "./components/AppHeader.vue";
 import { ref, onMounted } from "vue";
 import Konva from "konva";
 
-const width = ref(window.innerHeight - 80);
-const height = ref(width.value);
+const canvasWidth = ref(620);
+const canvasHeight = ref(620);
+const canvas = ref(0);
+const ctx = ref(null);
 const stage = ref(null);
 const layer = ref(null);
-const circle = ref(null);
 
+const circle = ref(null);
+const circleRadius = ref(300);
 const centerCircle = ref(null);
+const startNumberPosition = ref(0.82);
+const sizeNumber = ref(40);
+const startLinePosition = ref(0.7);
+const shortLine = ref(null);
 const boldLine = ref(null);
 const circleStart = ref(null);
 const circleEnd = ref(null);
-const shortLine = ref(null);
 const arc = ref(null);
+const arcOuterRadius = ref(217);
 
-const canvas = ref(0);
-const ctx = ref(null);
 const buttonMode = ref("seconds");
 const timerMode = ref("seconds");
 const timerInputSeconds = ref(30);
@@ -116,20 +121,26 @@ const updateTimer = () => {
 };
 
 const initCanvas = () => {
+  if (window.matchMedia("(max-width: 1023px)").matches) {
+    canvasWidth.value = 340;
+    canvasHeight.value = 340;
+    circleRadius.value = 160;
+  }
+
   ctx.value = canvas.value.getContext("2d");
 
   stage.value = new Konva.Stage({
     container: "container",
-    width: width.value,
-    height: height.value,
+    width: canvasWidth.value,
+    height: canvasHeight.value,
   });
 
   layer.value = new Konva.Layer();
 
   circle.value = new Konva.Circle({
-    x: width.value / 2,
-    y: height.value / 2,
-    radius: 300,
+    x: canvasWidth.value / 2,
+    y: canvasHeight.value / 2,
+    radius: circleRadius.value,
     fill: colorWhite.value,
     stroke: colorBlack.value,
     strokeWidth: 0,
@@ -146,91 +157,103 @@ const initCanvas = () => {
 };
 
 const drawTimerFace = () => {
-    const center = { x: circle.value.x(), y: circle.value.y() };
+  if (window.matchMedia("(max-width: 1023px)").matches) {
+    startNumberPosition.value = 0.75;
+    sizeNumber.value = 30;
+    startLinePosition.value = 0.59;
+  }
 
-    // 中心の丸点
-    centerCircle.value = new Konva.Circle({
-      x: width.value / 2,
-      y: height.value / 2,
-      radius: 4,
+  const center = { x: circle.value.x(), y: circle.value.y() };
+
+  // 中心の丸点
+  centerCircle.value = new Konva.Circle({
+    x: canvasWidth.value / 2,
+    y: canvasHeight.value / 2,
+    radius: 4,
+    fill: colorBlack.value,
+  });
+
+  layer.value.add(centerCircle.value);
+
+  // 文字盤の数字の描画
+  for (let i = 0; i < 60; i++) {
+    if (i % 5 !== 0) {
+      continue;
+    }
+
+    const radian = (i / 60) * 2 * Math.PI;
+    const x =
+      center.x + center.x * startNumberPosition.value * Math.sin(radian);
+    const y =
+      center.y - center.y * startNumberPosition.value * Math.cos(radian);
+
+    const number = new Konva.Text({
+      x: x,
+      y: y,
+      text: i.toString(),
+      fontSize: sizeNumber.value,
+      fontFamily: "Inter",
       fill: colorBlack.value,
     });
 
-    layer.value.add(centerCircle.value);
+    number.offsetX(number.width() / 2);
+    number.offsetY(number.height() / 2);
 
-    // 文字盤の数字の描画
-    for (let i = 0; i < 60; i++) {
-      if (i % 5 !== 0) {
-        continue;
-      }
+    layer.value.add(number);
+  }
 
-      const radian = (i / 60) * 2 * Math.PI;
-      const startNumberPosition = 0.82;
-      const x = center.x + center.x * startNumberPosition * Math.sin(radian);
-      const y = center.y - center.y * startNumberPosition * Math.cos(radian);
+  // 円を等分する線の描画
+  for (let i = 0; i < 60; i++) {
+    const radian = (i / 60) * 2 * Math.PI;
+    const endLinePosition = startLinePosition.value - 0.02;
+    const startX =
+      center.x + center.x * startLinePosition.value * Math.sin(radian);
+    const startY =
+      center.y - center.y * startLinePosition.value * Math.cos(radian);
+    const endX = center.x + center.x * endLinePosition * Math.sin(radian);
+    const endY = center.y - center.y * endLinePosition * Math.cos(radian);
 
-      const number = new Konva.Text({
-        x: x,
-        y: y,
-        text: i.toString(),
-        fontSize: 40,
-        fontFamily: "Inter",
-        fill: colorBlack.value,
+    if (i % 5 === 0) {
+      // 太線
+      boldLine.value = new Konva.Line({
+        points: [startX, startY, endX, endY],
+        stroke: colorAccent.value,
+        strokeWidth: 8,
       });
 
-      number.offsetX(number.width() / 2);
-      number.offsetY(number.height() / 2);
+      circleStart.value = new Konva.Circle({
+        x: startX,
+        y: startY,
+        radius: 3.5,
+        fill: colorAccent.value,
+      });
 
-      layer.value.add(number);
+      circleEnd.value = new Konva.Circle({
+        x: endX,
+        y: endY,
+        radius: 3.5,
+        fill: colorAccent.value,
+      });
+
+      layer.value.add(boldLine.value, circleStart.value, circleEnd.value);
+    } else if (i % 5 !== 0) {
+      // 短線
+      shortLine.value = new Konva.Line({
+        points: [startX, startY, endX, endY],
+        stroke: colorBlack.value,
+        strokeWidth: 1,
+      });
+
+      layer.value.add(shortLine.value);
     }
-
-    // 円を等分する線の描画
-    for (let i = 0; i < 60; i++) {
-      const radian = (i / 60) * 2 * Math.PI;
-      const startLinePosition = 0.7;
-      const endLinePosition = startLinePosition - 0.02;
-      const startX = center.x + center.x * startLinePosition * Math.sin(radian);
-      const startY = center.y - center.y * startLinePosition * Math.cos(radian);
-      const endX = center.x + center.x * endLinePosition * Math.sin(radian);
-      const endY = center.y - center.y * endLinePosition * Math.cos(radian);
-
-      if (i % 5 === 0) {
-        // 太線
-        boldLine.value = new Konva.Line({
-          points: [startX, startY, endX, endY],
-          stroke: colorAccent.value,
-          strokeWidth: 8,
-        });
-
-        circleStart.value = new Konva.Circle({
-          x: startX,
-          y: startY,
-          radius: 3.5,
-          fill: colorAccent.value,
-        });
-
-        circleEnd.value = new Konva.Circle({
-          x: endX,
-          y: endY,
-          radius: 3.5,
-          fill: colorAccent.value,
-        });
-
-        layer.value.add(boldLine.value, circleStart.value, circleEnd.value);
-      } else if (i % 5 !== 0) {
-        // 短線
-        shortLine.value = new Konva.Line({
-          points: [startX, startY, endX, endY],
-          stroke: colorBlack.value,
-          strokeWidth: 1,
-        });
-
-        layer.value.add(shortLine.value);
-      }
-    }
+  }
 };
 
 const drawCountDown = () => {
+  if (window.matchMedia("(max-width: 1023px)").matches) {
+    arcOuterRadius.value = 99;
+  }
+
   const center = { x: circle.value.x(), y: circle.value.y() };
 
   if (arc.value) {
@@ -240,7 +263,7 @@ const drawCountDown = () => {
       x: center.x,
       y: center.y,
       innerRadius: 0,
-      outerRadius: 217,
+      outerRadius: arcOuterRadius.value,
       angle: getEndAngle(),
       fill: colorMain.value,
       opacity: 0.8,
@@ -317,7 +340,7 @@ const getEndAngle = () => {
   </main>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .header {
   max-width: 1280px;
   height: 70px;
@@ -330,6 +353,11 @@ const getEndAngle = () => {
   padding-right: 30px;
   margin-left: auto;
   margin-right: auto;
+
+  @include mq(md) {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
 }
 
 .main {
@@ -337,11 +365,28 @@ const getEndAngle = () => {
   flex-direction: row-reverse;
   justify-content: center;
   gap: 100px;
+
+  @include mq(md) {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: none;
+  }
 }
+
+@media (max-width: 1140px) {
+  .main {
+    gap: 20px;
+  }
+}
+
 .timer-items {
   display: flex;
   flex-direction: column;
   justify-content: center;
+
+  @include mq(md) {
+    align-items: center;
+  }
 }
 
 .timer-mode {
@@ -356,21 +401,34 @@ const getEndAngle = () => {
   justify-content: center;
   margin-bottom: 80px;
   gap: 15px;
+
+  @include mq(md) {
+    margin-bottom: 30px;
+  }
 }
 
 .timer-start {
   display: flex;
   justify-content: center;
   margin-bottom: 120px;
+
+  @include mq(md) {
+    margin-bottom: 10px;
+  }
 }
 
 .v-select {
   width: 165px;
+
+  &:focus-within {
+    box-shadow: 0px 0px 10px $color-main;
+    outline: solid 2px $color-main;
+  }
 }
 
 .is-active {
-  background-color: var(--vt-c-main);
-  color: var(--vt-c-white);
-  border: 1px solid var(--vt-c-main);
+  background-color: $color-main;
+  color: $color-white;
+  border: 1px solid $color-main;
 }
 </style>
