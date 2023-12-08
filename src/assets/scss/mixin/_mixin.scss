@@ -4,10 +4,10 @@
 
 // PC first デフォルト：1280px以上
 $breakpoints: (
-  // 1023px以下(tab)
+  // 1023px以下
   "md": "screen and (max-width: 1023px)",
-  // 767px以下(sp)
-  //   "sm": "screen and (max-width: 767px)",
+  // 横向きモード
+  "ls": "screen and (orientation: landscape)"
 ) !default;
 
 //メディアクエリ用のmixinを定義。
