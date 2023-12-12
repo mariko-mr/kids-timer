@@ -29,7 +29,6 @@ const timerInputSeconds = ref(30);
 const timerInputMinutes = ref(1800);
 const timerDuration = ref(0); // 5 ~ 3600
 const elapsedSeconds = ref(0); // 0 ~ 3600
-const timerInterval = ref(0);
 
 const colorWhite = ref("#ffffff");
 const colorBlack = ref("#32383f");
@@ -38,6 +37,7 @@ const colorAccent = ref("#BFE4FF");
 
 const isActive = ref({ seconds: true });
 const breakPoint = ref("(max-width: 1023px)");
+
 const seconds = [
   { label: "5秒", value: 5 },
   { label: "10秒", value: 10 },
@@ -72,12 +72,36 @@ const minutes = [
   { label: "60分", value: 3600 },
 ];
 
-// onMounted フックで canvas 要素とコンテキストを取得
+const worker = ref(null);
+
 onMounted(() => {
   initCanvas();
   drawCountDown();
   drawTimerFace();
 });
+
+const startWorker = () => {
+  if (worker.value) {
+    worker.value.terminate();
+  }
+
+  worker.value = new Worker(new URL("./worker.js", import.meta.url));
+
+  if (window.Worker) {
+    // メッセージを受信したときの処理
+    worker.value.addEventListener("message", (event) => {
+      if (event.data === "timerFinished") {
+        alert("タイマー終了！");
+      } else if (event.data.type === "timerUpdate") {
+        console.log(elapsedSeconds.value);
+        drawCountDown();
+        elapsedSeconds.value = event.data.elapsedSeconds;
+      }
+    });
+  } else {
+    console.error("Web Workers are not supported in this environment.");
+  }
+};
 
 const changeButtonMode = (mode) => {
   buttonMode.value = mode;
@@ -95,6 +119,8 @@ const changeButtonMode = (mode) => {
 };
 
 const startTimer = () => {
+  // 初期化
+  elapsedSeconds.value = 0;
   timerMode.value = buttonMode.value;
 
   if (timerMode.value === "seconds") {
@@ -103,21 +129,12 @@ const startTimer = () => {
     timerDuration.value = timerInputMinutes.value;
   }
 
-  // 初期化
-  elapsedSeconds.value = 0;
-  clearInterval(timerInterval.value);
-
-  timerInterval.value = setInterval(updateTimer, 1000);
-};
-
-const updateTimer = () => {
-  if (elapsedSeconds.value > timerDuration.value) {
-    clearInterval(timerInterval.value);
-    // alert("タイマー終了！");
-  } else {
-    drawCountDown();
-    elapsedSeconds.value++; // 1, 2, 3 ..., 3600
-  }
+  // Web Workerを開始
+  startWorker();
+  worker.value.postMessage({
+    type: "start",
+    timerDuration: timerDuration.value,
+  });
 };
 
 const initCanvas = () => {
