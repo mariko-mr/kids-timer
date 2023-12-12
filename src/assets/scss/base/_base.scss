@@ -23,6 +23,7 @@ body {
   background: $color-white;
   transition: color 0.5s, background-color 0.5s;
   line-height: 1.6;
+  letter-spacing: 0.12rem;
   font-family: "Inter", "Hiragino Kaku Gothic ProN", "Noto Sans Japanese",
     Meiryo, sans-serif;
   font-size: 16px;
@@ -53,47 +54,5 @@ a {
   &:focus-visible {
     color: $color-main;
     outline: solid 2px $color-main;
-  }
-}
-
-button {
-  display: inline-block;
-  width: 170px;
-  max-width: 100%;
-  padding: 15px 20px;
-  background-color: $color-white;
-  color: $color-black;
-  font-size: 1.5rem;
-  text-align: center;
-  border: 1px solid $color-black;
-  border-radius: 40px;
-  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.16);
-  transition: color, background-color 0.5s ease;
-
-  &:hover {
-    background-color: $color-main-button-hover;
-    color: $color-white;
-    border: 1px solid $color-main;
-  }
-
-  &:focus-visible {
-    background-color: $color-main-button-hover;
-    color: $color-white;
-    border: 1px solid $color-main;
-    box-shadow: 0px 0px 10px $color-main;
-    outline: solid 2px $color-main;
-    outline-offset: 3px;
-  }
-
-  &:active {
-    background-color: $color-main;
-    color: $color-white;
-    border: 1px solid $color-main;
-  }
-
-  @include mq(md) {
-    width: 130px;
-    padding: 15px 20px;
-    font-size: 1rem;
   }
 }

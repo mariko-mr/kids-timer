@@ -36,6 +36,9 @@ const colorMain = ref("#FFCA80");
 const colorAccent = ref("#BFE4FF");
 
 const isActive = ref({ seconds: true });
+const isStop = ref(true);
+const isResume = ref(false);
+const isTimerRunning = ref(true);
 const breakPoint = ref("(max-width: 1023px)");
 
 const seconds = [
@@ -93,7 +96,6 @@ const startWorker = () => {
       if (event.data === "timerFinished") {
         alert("タイマー終了！");
       } else if (event.data.type === "timerUpdate") {
-        console.log(elapsedSeconds.value);
         drawCountDown();
         elapsedSeconds.value = event.data.elapsedSeconds;
       }
@@ -135,6 +137,32 @@ const startTimer = () => {
     type: "start",
     timerDuration: timerDuration.value,
   });
+};
+
+const stopTimer = () => {
+  if (worker.value) {
+    worker.value.postMessage({ type: "pause" });
+    isTimerRunning.value = false;
+    isStop.value = false;
+    isResume.value = true;
+  }
+};
+
+const resumeTimer = () => {
+  if (worker.value) {
+    worker.value.postMessage({ type: "resume" });
+    isTimerRunning.value = true;
+    isStop.value = true;
+    isResume.value = false;
+  }
+};
+
+const toggleTimer = () => {
+  if (isTimerRunning.value) {
+    stopTimer();
+  } else {
+    resumeTimer();
+  }
 };
 
 const initCanvas = () => {
@@ -353,8 +381,17 @@ const getEndAngle = () => {
         </v-select>
       </div>
 
-      <div class="timer-start">
-        <button class="btn" @click="startTimer()">すたーと</button>
+      <div class="timer-action">
+        <button class="btn btn-start" @click="startTimer()">
+          タイマーをはじめる
+        </button>
+        <button
+          class="btn"
+          :class="{ 'is-stop': isStop, 'is-resume': isResume }"
+          @click="toggleTimer()"
+        >
+          {{ isTimerRunning ? "とめる" : "さいかい" }}
+        </button>
       </div>
     </div>
   </main>
@@ -430,11 +467,11 @@ const getEndAngle = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 80px;
+  margin-bottom: 40px;
   gap: 10px;
 
   @include mq(md) {
-    margin-bottom: 30px;
+    margin-bottom: 40px;
   }
 
   @include mq(ls) {
@@ -442,13 +479,19 @@ const getEndAngle = () => {
   }
 }
 
-.timer-start {
+.timer-action {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  margin-bottom: 120px;
+  gap: 70px;
 
   @include mq(md) {
-    margin-bottom: 10px;
+    gap: 20px;
+  }
+
+  @include mq(ls) {
+    flex-direction: row;
   }
 }
 
@@ -458,6 +501,7 @@ const getEndAngle = () => {
   &:focus-within {
     box-shadow: 0px 0px 10px $color-main;
     outline: solid 2px $color-main;
+    border-radius: 4px;
   }
 
   @include mq(ls) {
@@ -465,9 +509,40 @@ const getEndAngle = () => {
   }
 }
 
+.btn-start {
+  width: 300px;
+
+  @include mq(md) {
+    width: 210px;
+  }
+}
+
 .is-active {
   background-color: $color-main;
   color: $color-white;
   border: 1px solid $color-main;
+}
+
+.is-stop {
+  background-color: $color-black;
+  color: $color-white;
+  opacity: $opacity;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.is-resume {
+  background-color: $color-white;
+  color: $color-black;
+  box-shadow: 0px 0px 10px $color-main;
+  border: 1px solid $color-main;
+
+  &:hover {
+    background-color: $color-main-button-hover;
+    color: $color-white;
+    border: 1px solid $color-main;
+  }
 }
 </style>
