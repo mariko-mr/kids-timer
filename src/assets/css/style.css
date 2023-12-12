@@ -90,6 +90,7 @@ body {
   -webkit-transition: color 0.5s, background-color 0.5s;
   transition: color 0.5s, background-color 0.5s;
   line-height: 1.6;
+  letter-spacing: 0.12rem;
   font-family: "Inter", "Hiragino Kaku Gothic ProN", "Noto Sans Japanese", Meiryo, sans-serif;
   font-size: 16px;
   font-weight: normal;
@@ -122,7 +123,7 @@ a:focus-visible {
   outline: solid 2px #ffca80;
 }
 
-button {
+.btn {
   display: inline-block;
   width: 170px;
   max-width: 100%;
@@ -130,6 +131,7 @@ button {
   background-color: #ffffff;
   color: #32383f;
   font-size: 1.5rem;
+  letter-spacing: 0.12rem;
   text-align: center;
   border: 1px solid #32383f;
   border-radius: 40px;
@@ -138,12 +140,12 @@ button {
   -webkit-transition: color, background-color 0.5s ease;
   transition: color, background-color 0.5s ease;
 }
-button:hover {
+.btn:hover {
   background-color: rgba(255, 202, 128, 0.7);
   color: #ffffff;
   border: 1px solid #ffca80;
 }
-button:focus-visible {
+.btn:focus-visible {
   background-color: rgba(255, 202, 128, 0.7);
   color: #ffffff;
   border: 1px solid #ffca80;
@@ -152,14 +154,25 @@ button:focus-visible {
   outline: solid 2px #ffca80;
   outline-offset: 3px;
 }
-button:active {
+.btn:active {
   background-color: #ffca80;
   color: #ffffff;
   border: 1px solid #ffca80;
 }
 @media screen and (max-width: 1023px) {
-  button {
+  .btn {
     width: 130px;
+    padding: 15px 20px;
+    font-size: 1rem;
+  }
+}
+
+.btn-long {
+  width: 220px;
+}
+@media screen and (max-width: 1023px) {
+  .btn-long {
+    width: 170px;
     padding: 15px 20px;
     font-size: 1rem;
   }
