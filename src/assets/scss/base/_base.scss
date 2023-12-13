@@ -13,6 +13,10 @@ Base Styling
   box-sizing: border-box;
 }
 
+::selection {
+  background-color: $color-main;
+}
+
 html {
   scroll-behavior: smooth;
 }

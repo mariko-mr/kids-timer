@@ -4,7 +4,7 @@
 
 // PC first デフォルト：1280px以上
 $breakpoints: (
-  // 1023px以下
+  // md≦1023px (tab)
   "md": "screen and (max-width: 1023px)",
   // 横向きモード
   "ls": "(orientation: landscape) and (max-width: 1023px)"

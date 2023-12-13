@@ -39,7 +39,8 @@ const isActive = ref({ seconds: true });
 const isStop = ref(true);
 const isResume = ref(false);
 const isTimerRunning = ref(true);
-const breakPoint = ref("(max-width: 1023px)");
+
+const worker = ref(null);
 
 const seconds = [
   { label: "5秒", value: 5 },
@@ -75,9 +76,10 @@ const minutes = [
   { label: "60分", value: 3600 },
 ];
 
-const worker = ref(null);
-
 onMounted(() => {
+  checkMediaQuery();
+  window.onload = checkMediaQuery;
+  window.onresize = checkMediaQuery;
   initCanvas();
   drawCountDown();
   drawTimerFace();
@@ -165,12 +167,37 @@ const toggleTimer = () => {
   }
 };
 
-const initCanvas = () => {
-  if (window.matchMedia(breakPoint.value).matches) {
-    canvasWidth.value = 340;
-    canvasHeight.value = 340;
+const checkMediaQuery = () => {
+  console.log("breakpoint");
+  if (
+    window.matchMedia(
+      "(max-width: 450px), (orientation: landscape) and (max-width: 1023px)"
+    ).matches
+  ) {
+    canvasWidth.value = 355;
+    canvasHeight.value = 355;
     circleRadius.value = 160;
+    startNumberPosition.value = 0.75;
+    sizeNumber.value = 30;
+    startLinePosition.value = 0.59;
+    arcOuterRadius.value = 103;
+  } else if (window.matchMedia("(max-width: 639px)").matches) {
+    canvasWidth.value = 420;
+    canvasHeight.value = 420;
+    circleRadius.value = 200;
+    startNumberPosition.value = 0.77;
+    sizeNumber.value = 36;
+    startLinePosition.value = 0.6;
+    arcOuterRadius.value = 125;
   }
+};
+
+const initCanvas = () => {
+  // if (window.matchMedia(breakPoint.value).matches) {
+  //   canvasWidth.value = 340;
+  //   canvasHeight.value = 340;
+  //   circleRadius.value = 160;
+  // }
 
   ctx.value = canvas.value.getContext("2d");
 
@@ -202,11 +229,11 @@ const initCanvas = () => {
 };
 
 const drawTimerFace = () => {
-  if (window.matchMedia(breakPoint.value).matches) {
-    startNumberPosition.value = 0.75;
-    sizeNumber.value = 30;
-    startLinePosition.value = 0.59;
-  }
+  // if (window.matchMedia(breakPoint.value).matches) {
+  //   startNumberPosition.value = 0.75;
+  //   sizeNumber.value = 30;
+  //   startLinePosition.value = 0.59;
+  // }
 
   const center = { x: circle.value.x(), y: circle.value.y() };
 
@@ -295,9 +322,9 @@ const drawTimerFace = () => {
 };
 
 const drawCountDown = () => {
-  if (window.matchMedia(breakPoint.value).matches) {
-    arcOuterRadius.value = 99;
-  }
+  // if (window.matchMedia(breakPoint.value).matches) {
+  //   arcOuterRadius.value = 99;
+  // }
 
   const center = { x: circle.value.x(), y: circle.value.y() };
 
@@ -334,57 +361,67 @@ const getEndAngle = () => {
   </header>
 
   <main class="main container">
-    <div id="container" class="timer">
-      <canvas ref="canvas" class="canvas"></canvas>
-    </div>
-
     <div class="timer-items">
-      <div class="timer-mode">
-        <button
-          class="btn"
-          :class="{ 'is-active': isActive['seconds'] }"
-          @click="changeButtonMode('seconds')"
-        >
-          びょう(秒)
-        </button>
-        <button
-          class="btn"
-          :class="{ 'is-active': isActive['minutes'] }"
-          @click="changeButtonMode('minutes')"
-        >
-          ふん(分)
-        </button>
-        <!-- <button class="btn" @click="changeButtonMode('hours')">とけい</button> -->
+      <div class="timer" id="container">
+        <canvas ref="canvas" class="canvas"></canvas>
       </div>
+      <!-- /.timer -->
 
-      <div class="timer-select">
-        <label>じかんをえらんでね</label>
-        <v-select
-          v-if="buttonMode === 'seconds'"
-          v-model="timerInputSeconds"
-          :options="seconds"
-          :reduce="(seconds) => seconds.value"
-          :clearable="false"
-          :searchable="false"
-          placeholder="30秒"
-        ></v-select>
+      <div class="timer-items-init">
+        <div class="timer-mode">
+          <button
+            class="btn"
+            :class="{ 'is-active': isActive['seconds'] }"
+            @click="changeButtonMode('seconds')"
+          >
+            びょう(秒)
+          </button>
+          <button
+            class="btn"
+            :class="{ 'is-active': isActive['minutes'] }"
+            @click="changeButtonMode('minutes')"
+          >
+            ふん(分)
+          </button>
+          <!-- <button class="btn" @click="changeButtonMode('hours')">とけい</button> -->
+        </div>
+        <!-- /.timer-mode -->
 
-        <v-select
-          v-if="buttonMode === 'minutes'"
-          v-model="timerInputMinutes"
-          :options="minutes"
-          :reduce="(minutes) => minutes.value"
-          :clearable="false"
-          :searchable="false"
-          placeholder="30分"
-        >
-        </v-select>
+        <div class="timer-select">
+          <label>じかんをえらんでね</label>
+          <v-select
+            v-if="buttonMode === 'seconds'"
+            v-model="timerInputSeconds"
+            :options="seconds"
+            :reduce="(seconds) => seconds.value"
+            :clearable="false"
+            :searchable="false"
+            placeholder="30秒"
+          ></v-select>
+
+          <v-select
+            v-if="buttonMode === 'minutes'"
+            v-model="timerInputMinutes"
+            :options="minutes"
+            :reduce="(minutes) => minutes.value"
+            :clearable="false"
+            :searchable="false"
+            placeholder="30分"
+          >
+          </v-select>
+        </div>
+        <!-- /.timer-select -->
+
+        <div class="timer-start">
+          <button class="btn btn-start" @click="startTimer()">
+            タイマーをはじめる
+          </button>
+        </div>
+        <!-- /.timer-start -->
       </div>
+      <!-- /.timer-items-init -->
 
-      <div class="timer-action">
-        <button class="btn btn-start" @click="startTimer()">
-          タイマーをはじめる
-        </button>
+      <div class="timer-items-control">
         <button
           class="btn"
           :class="{ 'is-stop': isStop, 'is-resume': isResume }"
@@ -393,7 +430,9 @@ const getEndAngle = () => {
           {{ isTimerRunning ? "とめる" : "さいかい" }}
         </button>
       </div>
+      <!-- /.timer-items-control -->
     </div>
+    <!-- /.timer-items -->
   </main>
 </template>
 
@@ -410,8 +449,8 @@ const getEndAngle = () => {
 }
 
 .container {
-  padding-left: 30px;
-  padding-right: 30px;
+  padding-left: 15px;
+  padding-right: 15px;
   margin-left: auto;
   margin-right: auto;
 
@@ -421,77 +460,103 @@ const getEndAngle = () => {
   }
 }
 
-.main {
-  display: flex;
-  flex-direction: row-reverse;
+// .main {
+// }
+
+.timer-items {
+  display: grid;
   justify-content: center;
-  gap: 100px;
+  column-gap: 80px;
+
+  @media (max-width: 1140px) {
+    column-gap: 5px;
+  }
 
   @include mq(md) {
-    flex-direction: column-reverse;
-    align-items: center;
-    gap: none;
+    row-gap: 10px;
   }
 
   @include mq(ls) {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: center;
-    gap: 100px;
+    column-gap: 25px;
+    row-gap: 35px;
   }
 }
 
-@media (max-width: 1140px) {
-  .main {
-    gap: 20px;
-  }
-}
-
-.timer-items {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.timer {
+  height: 100%;
+  grid-column-start: 2;
+  grid-column-end: 3;
+  grid-row-start: 1;
+  grid-row-end: 3;
 
   @include mq(md) {
-    align-items: center;
+    order: 2;
+    grid-column-start: unset;
+    grid-column-end: unset;
+    grid-row-start: unset;
+    grid-row-end: unset;
+  }
+
+  @include mq(ls) {
+    grid-column-start: 2;
+    grid-column-end: 3;
+    grid-row-start: 1;
+    grid-row-end: 3;
+  }
+}
+
+.timer-items-init {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: end;
+  margin-bottom: 85px;
+
+  @include mq(md) {
+    order: 1;
+    margin-bottom: 0;
   }
 }
 
 .timer-mode {
   display: flex;
-  gap: 30px;
   margin-bottom: 30px;
+  gap: 30px;
+
+  @include mq(md) {
+    margin-bottom: 20px;
+  }
 }
 
 .timer-select {
   display: flex;
   align-items: center;
-  justify-content: center;
   margin-bottom: 40px;
   gap: 10px;
 
   @include mq(md) {
-    margin-bottom: 40px;
+    margin-bottom: 30px;
   }
 
   @include mq(ls) {
     gap: 5px;
   }
+
+  label {
+    font-size: 0.75rem;
+  }
 }
 
-.timer-action {
+// .timer-start {
+// }
+
+.timer-items-control {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 70px;
 
   @include mq(md) {
-    gap: 20px;
-  }
-
-  @include mq(ls) {
-    flex-direction: row;
+    order: 3;
   }
 }
 
@@ -506,6 +571,7 @@ const getEndAngle = () => {
 
   @include mq(ls) {
     width: 120px;
+    font-size: 0.75rem;
   }
 }
 
@@ -529,7 +595,7 @@ const getEndAngle = () => {
   opacity: $opacity;
 
   &:hover {
-    opacity: 0.9;
+    opacity: 0.8;
   }
 }
 
