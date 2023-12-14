@@ -186,9 +186,9 @@ const checkMediaQuery = () => {
     canvasHeight.value = 355;
     circleRadius.value = 160;
     startNumberPosition.value = 0.75;
-    sizeNumber.value = 30;
-    startLinePosition.value = 0.59;
-    arcOuterRadius.value = 103;
+    sizeNumber.value = 24;
+    startLinePosition.value = 0.6;
+    arcOuterRadius.value = 106;
   } else if (window.matchMedia("(max-width: 639px)").matches) {
     canvasWidth.value = 420;
     canvasHeight.value = 420;
@@ -201,12 +201,6 @@ const checkMediaQuery = () => {
 };
 
 const initCanvas = () => {
-  // if (window.matchMedia(breakPoint.value).matches) {
-  //   canvasWidth.value = 340;
-  //   canvasHeight.value = 340;
-  //   circleRadius.value = 160;
-  // }
-
   ctx.value = canvas.value.getContext("2d");
 
   stage.value = new Konva.Stage({
@@ -237,12 +231,6 @@ const initCanvas = () => {
 };
 
 const drawTimerFace = () => {
-  // if (window.matchMedia(breakPoint.value).matches) {
-  //   startNumberPosition.value = 0.75;
-  //   sizeNumber.value = 30;
-  //   startLinePosition.value = 0.59;
-  // }
-
   const center = { x: circle.value.x(), y: circle.value.y() };
 
   // 中心の丸点
@@ -330,10 +318,6 @@ const drawTimerFace = () => {
 };
 
 const drawCountDown = () => {
-  // if (window.matchMedia(breakPoint.value).matches) {
-  //   arcOuterRadius.value = 99;
-  // }
-
   const center = { x: circle.value.x(), y: circle.value.y() };
 
   if (arc.value) {
@@ -442,12 +426,12 @@ const getEndAngle = () => {
     </div>
     <!-- /.timer-items -->
 
-    <!-- <Teleport to="body"> -->
-    <ModalTimerFinish
-      :show="showModal"
-      @close="showModal = false"
-    ></ModalTimerFinish>
-    <!-- </Teleport> -->
+    <Teleport to="body">
+      <ModalTimerFinish
+        :show="showModal"
+        @close="showModal = false"
+      ></ModalTimerFinish>
+    </Teleport>
   </main>
 </template>
 
