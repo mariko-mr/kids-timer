@@ -442,12 +442,12 @@ const getEndAngle = () => {
     </div>
     <!-- /.timer-items -->
 
-    <!-- <Teleport to="body"> -->
+    <Teleport to="body">
     <ModalTimerFinish
       :show="showModal"
       @close="showModal = false"
     ></ModalTimerFinish>
-    <!-- </Teleport> -->
+    </Teleport>
   </main>
 </template>
 
