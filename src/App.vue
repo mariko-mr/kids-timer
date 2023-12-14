@@ -2,6 +2,8 @@
 import AppHeader from "./components/AppHeader.vue";
 import { ref, onMounted } from "vue";
 import Konva from "konva";
+import confetti from "canvas-confetti";
+import ModalTimerFinish from "./components/ModalTimerFinish.vue";
 
 const canvasWidth = ref(620);
 const canvasHeight = ref(620);
@@ -41,6 +43,7 @@ const isResume = ref(false);
 const isTimerRunning = ref(true);
 
 const worker = ref(null);
+const showModal = ref(false);
 
 const seconds = [
   { label: "5秒", value: 5 },
@@ -96,7 +99,12 @@ const startWorker = () => {
     // メッセージを受信したときの処理
     worker.value.addEventListener("message", (event) => {
       if (event.data === "timerFinished") {
-        alert("タイマー終了！");
+        showModal.value = true;
+        confetti({
+          particleCount: 200,
+          spread: 150,
+          origin: { y: 0.6 },
+        });
       } else if (event.data.type === "timerUpdate") {
         drawCountDown();
         elapsedSeconds.value = event.data.elapsedSeconds;
@@ -433,6 +441,13 @@ const getEndAngle = () => {
       <!-- /.timer-items-control -->
     </div>
     <!-- /.timer-items -->
+
+    <!-- <Teleport to="body"> -->
+    <ModalTimerFinish
+      :show="showModal"
+      @close="showModal = false"
+    ></ModalTimerFinish>
+    <!-- </Teleport> -->
   </main>
 </template>
 
@@ -473,7 +488,7 @@ const getEndAngle = () => {
   }
 
   @include mq(md) {
-    row-gap: 10px;
+    row-gap: 15px;
   }
 
   @include mq(ls) {
@@ -543,7 +558,15 @@ const getEndAngle = () => {
   }
 
   label {
-    font-size: 0.75rem;
+    font-size: 1.15rem;
+
+    @include mq(md) {
+      font-size: 1rem;
+    }
+
+    @include mq(ls) {
+      font-size: 1rem;
+    }
   }
 }
 
@@ -570,8 +593,7 @@ const getEndAngle = () => {
   }
 
   @include mq(ls) {
-    width: 120px;
-    font-size: 0.75rem;
+    width: 150px;
   }
 }
 
@@ -579,7 +601,11 @@ const getEndAngle = () => {
   width: 300px;
 
   @include mq(md) {
-    width: 210px;
+    width: 250px;
+  }
+
+  @include mq(ls) {
+    width: 260px;
   }
 }
 
