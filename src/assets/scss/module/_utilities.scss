@@ -1,3 +1,11 @@
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.mb-30 {
+  margin-bottom: 30px;
+}
+
 .btn {
   display: inline-block;
   width: 170px;
@@ -6,12 +14,12 @@
   background-color: $color-white;
   color: $color-black;
   font-size: 1.5rem;
-  letter-spacing: 0.12rem;
+  letter-spacing: $letter-spacing;
   text-align: center;
-  border: 1px solid $color-black;
+  border: 1px solid rgba(60, 60, 60, 0.26);
   border-radius: 40px;
   box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.16);
-  transition: color, background-color 0.5s ease;
+  transition: color, background-color, 0.5s ease;
 
   &:hover {
     background-color: $color-main-button-hover;

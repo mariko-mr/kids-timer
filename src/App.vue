@@ -44,6 +44,7 @@ const isTimerRunning = ref(true);
 
 const worker = ref(null);
 const showModal = ref(false);
+const showModalContact = ref(false);
 
 const seconds = [
   { label: "5秒", value: 5 },

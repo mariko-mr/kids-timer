@@ -27,9 +27,8 @@ body {
   background: $color-white;
   transition: color 0.5s, background-color 0.5s;
   line-height: 1.6;
-  letter-spacing: 0.12rem;
-  font-family: "Inter", "Hiragino Kaku Gothic ProN", "Noto Sans Japanese",
-    Meiryo, sans-serif;
+  letter-spacing: $letter-spacing;
+  font-family: $font-family;
   font-size: 16px;
   font-weight: normal;
   text-rendering: optimizeLegibility;
