@@ -1,8 +1,8 @@
 <script setup>
-import ModalContact from "./ModalContact.vue";
+// import ModalContact from "./ModalContact.vue";
 import { ref } from "vue";
 
-const showModalContact = ref(false);
+// const showModalContact = ref(false);
 </script>
 
 <template>
@@ -14,7 +14,7 @@ const showModalContact = ref(false);
   <!-- /.header__left -->
   <div class="header__right">
     <nav class="header__nav">
-      <button
+      <!-- <button
         class="modal-contact"
         id="show-modal-contact"
         @click="showModalContact = true"
@@ -26,7 +26,7 @@ const showModalContact = ref(false);
           :show="showModalContact"
           @close="showModalContact = false"
         ></ModalContact>
-      </Teleport>
+      </Teleport> -->
     </nav>
   </div>
   <!-- /.header__right -->
@@ -47,9 +47,9 @@ const showModalContact = ref(false);
   align-items: center;
 }
 
-.modal-contact {
-  color: $color-black;
-  font-size: 1.15rem;
-  letter-spacing: $letter-spacing;
-}
+// .modal-contact {
+//   color: $color-black;
+//   font-size: 1.15rem;
+//   letter-spacing: $letter-spacing;
+// }
 </style>
