@@ -13,36 +13,46 @@ const props = defineProps({
         </div>
 
         <div class="modal-body">
-          <slot name="body">
-            <div class="modal-body-list mb-20">
-              <ul>
-                <li>- できたこと</li>
-                <li>- がんばったこと</li>
-                <li>- きづいたこと</li>
-              </ul>
-            </div>
-            <!-- /.modal-body-list -->
+          <div class="modal-body-list mb-20">
+            <ul>
+              <li>- できたこと</li>
+              <li>- がんばったこと</li>
+              <li>- きづいたこと</li>
+            </ul>
+          </div>
+          <!-- /.modal-body-list -->
 
+          <form action="https://ssl.form-mailer.jp/fm/service/Forms/confirm" method="post" name="form1" ENCTYPE="multipart/form-data" accept-charset="UTF-8">
+            <input type="hidden" name="key" value="ebdc097d807682">
             <div class="modal-body-textarea mb-20">
               <textarea
-                v-model="message"
+              name="field_7049864"
                 placeholder="なんでもいいよ。ここにかいてね。"
               ></textarea>
             </div>
             <!-- /.modal-body-textarea -->
-          </slot>
-        </div>
+            <input type="hidden" name="code" value="utf8">
 
-        <div class="modal-btn modal-btn-contact">
-          <button class="btn btn-contact btn-submit" type="submit">
-            そうしん
-          </button>
-          <button class="btn btn-contact btn-close" @click="$emit('close')">
-            とじる
-          </button>
+            <div class="modal-btn modal-btn-contact">
+              <button class="btn btn-contact btn-submit" name="submit" type="submit">
+                そうしん
+              </button>
+              <button class="btn btn-contact btn-close" @click="$emit('close')">
+                とじる
+              </button>
+            </div>
+            <!-- /.modal-btn modal-btn-contact -->
+          </form>
+
+          <p class="powered-by-formmailer">
+            <a href="https://www.form-mailer.jp/?utm_source=https://ssl.form-mailer.jp/fms/ebdc097d807682&utm_medium=ownedmedia&utm_campaign=powered-by-formmailer" target="_blank" id="powered">Powered by FormMailer.</a>
+          </p>
         </div>
+        <!-- /.modal-body -->
       </div>
+      <!-- /.modal-container -->
     </div>
+    <!-- /.modal-mask -->
   </Transition>
 </template>
 
@@ -72,28 +82,33 @@ textarea {
 .modal-btn-contact {
   display: flex;
   gap: 20px;
+  justify-content: center;
+  margin-bottom: 30px;
 }
 
 .btn-contact {
   width: 140px;
-  // color: $color-white;
+  color: $color-white;
   font-size: 1.25rem;
   border: 1px solid transparent;
 }
 
 .btn-submit {
   background-color: $color-main;
-  color: $color-white;
 }
 
 .btn-close {
   background-color: $color-black;
-  color: $color-white;
   opacity: 0.5;
 
   &:hover {
     background-color: $color-black;
     opacity: $opacity;
   }
+}
+
+.powered-by-formmailer{
+  text-align: center;
+  font-size: 0.7rem;
 }
 </style>

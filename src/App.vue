@@ -178,7 +178,6 @@ const toggleTimer = () => {
 };
 
 const checkMediaQuery = () => {
-  console.log("breakpoint");
   if (
     window.matchMedia(
       "(max-width: 450px), (orientation: landscape) and (max-width: 1023px)"
