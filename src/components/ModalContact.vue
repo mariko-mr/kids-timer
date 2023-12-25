@@ -91,6 +91,11 @@ textarea {
   color: $color-white;
   font-size: 1.25rem;
   border: 1px solid transparent;
+
+   @include mq(md) {
+    font-size: 1rem;
+    padding: 15px 10px;
+    }
 }
 
 .btn-submit {
