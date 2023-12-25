@@ -4,6 +4,7 @@ import { ref, onMounted } from "vue";
 import Konva from "konva";
 import confetti from "canvas-confetti";
 import ModalTimerFinish from "./components/ModalTimerFinish.vue";
+import ModalContact from "./components/ModalContact.vue";
 
 const canvasWidth = ref(620);
 const canvasHeight = ref(620);
@@ -44,6 +45,7 @@ const isTimerRunning = ref(true);
 
 const worker = ref(null);
 const showModal = ref(false);
+const showModalContact = ref(false);
 
 const seconds = [
   { label: "5秒", value: 5 },
@@ -176,7 +178,6 @@ const toggleTimer = () => {
 };
 
 const checkMediaQuery = () => {
-  console.log("breakpoint");
   if (
     window.matchMedia(
       "(max-width: 450px), (orientation: landscape) and (max-width: 1023px)"
@@ -351,6 +352,21 @@ const getEndAngle = () => {
   <header class="header container">
     <AppHeader />
   </header>
+
+   <!-- お問い合わせボタン -->
+  <div>
+    <button
+        class="modal-contact btn"
+        id="show-modal-contact"
+        @click="showModalContact = true"
+      ></button>
+    </div>
+      <Teleport to="body">
+        <ModalContact
+          :show="showModalContact"
+          @close="showModalContact = false"
+        ></ModalContact>
+      </Teleport>
 
   <main class="main container">
     <div class="timer-items">
@@ -619,6 +635,56 @@ const getEndAngle = () => {
     background-color: $color-main-button-hover;
     color: $color-white;
     border: 1px solid $color-main;
+  }
+}
+
+.modal-contact {
+  color: $color-black;
+  text-align: center;
+  font-size: 0.9rem;
+  letter-spacing: normal;
+  padding: 0px;
+  position: fixed;
+  z-index: 7;
+  background-color:  $color-main;
+  border: none;
+  border-radius: 40px;
+  width: 100px;
+  height: 60px;
+  bottom: 33px;
+  right: 25px;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &::before {
+    content: "おといあわせ";
+    width: 100px;
+  }
+
+
+  @include mq(md) {
+    font-size: 0.7rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50px;
+    bottom: 10px;
+    right: 10px;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 25%;
+    left: 27%;
+    width: 25px;
+    height: 25px;
+    background-image: url(./assets/img/contact-big.svg);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+  }
   }
 }
 </style>

@@ -1,4 +1,4 @@
-//ベース色
+// ベース色
 $color-main: #ffca80;
 $color-main-button-hover: rgba(255, 202, 128, 0.7);
 $color-primary: #bfe4ff;
@@ -7,3 +7,8 @@ $color-white: #ffffff;
 
 // 透過度
 $opacity: 0.7;
+
+// フォント
+$font-family: "Inter", "Hiragino Kaku Gothic ProN", "Noto Sans Japanese", Meiryo,
+  sans-serif;
+$letter-spacing: 0.15rem;

@@ -98,7 +98,7 @@ body {
   -webkit-transition: color 0.5s, background-color 0.5s;
   transition: color 0.5s, background-color 0.5s;
   line-height: 1.6;
-  letter-spacing: 0.12rem;
+  letter-spacing: 0.15rem;
   font-family: "Inter", "Hiragino Kaku Gothic ProN", "Noto Sans Japanese", Meiryo, sans-serif;
   font-size: 16px;
   font-weight: normal;
@@ -131,6 +131,14 @@ a:focus-visible {
   outline: solid 2px #ffca80;
 }
 
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.mb-30 {
+  margin-bottom: 30px;
+}
+
 .btn {
   display: inline-block;
   width: 170px;
@@ -139,14 +147,14 @@ a:focus-visible {
   background-color: #ffffff;
   color: #32383f;
   font-size: 1.5rem;
-  letter-spacing: 0.12rem;
+  letter-spacing: 0.15rem;
   text-align: center;
-  border: 1px solid #32383f;
+  border: 1px solid rgba(60, 60, 60, 0.26);
   border-radius: 40px;
   -webkit-box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.16);
           box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.16);
-  -webkit-transition: color, background-color 0.5s ease;
-  transition: color, background-color 0.5s ease;
+  -webkit-transition: color, background-color, 0.5s ease;
+  transition: color, background-color, 0.5s ease;
 }
 .btn:hover {
   background-color: rgba(255, 202, 128, 0.7);
@@ -176,4 +184,80 @@ a:focus-visible {
   .btn {
     width: 150px;
   }
+}
+
+.modal-mask {
+  position: fixed;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease;
+}
+
+.modal-container {
+  width: 500px;
+  margin: auto;
+  padding: 60px;
+  background-color: #fff;
+  border-radius: 20px;
+  -webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  -webkit-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+@media screen and (max-width: 1023px) {
+  .modal-container {
+    width: 340px;
+    padding: 50px;
+  }
+}
+@media (orientation: landscape) and (max-width: 1023px) {
+  .modal-container {
+    width: 350px;
+  }
+}
+
+.modal-header {
+  font-size: 1.25rem;
+}
+
+.modal-btn {
+  -ms-flex-item-align: center;
+      align-self: center;
+}
+
+/*
+   * The following styles are auto-applied to elements with
+   * transition="modal" when their visibility is toggled
+   * by Vue.js.
+   *
+   * You can easily play with the modal transition by editing
+   * these styles.
+   */
+.modal-enter-from {
+  opacity: 0;
+}
+
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-from .modal-container,
+.modal-leave-to .modal-container {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
 }
