@@ -646,7 +646,6 @@ const getEndAngle = () => {
   padding: 0px;
   position: fixed;
   z-index: 7;
-  background-color:  $color-main;
   border: none;
   border-radius: 40px;
   width: 100px;
@@ -656,7 +655,7 @@ const getEndAngle = () => {
   opacity: 0.7;
 
   &:hover {
-    opacity: 1;
+    opacity: 0.7;
   }
 
   &::before {

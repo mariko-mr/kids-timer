@@ -31,17 +31,17 @@ const props = defineProps({
               ></textarea>
             </div>
             <!-- /.modal-body-textarea -->
-            <input type="hidden" name="code" value="utf8">
 
             <div class="modal-btn modal-btn-contact">
               <button class="btn btn-contact btn-submit" name="submit" type="submit">
                 そうしん
               </button>
-              <button class="btn btn-contact btn-close" @click="$emit('close')">
+              <button class="btn btn-contact btn-close" name="close" type="button" @click="$emit('close')">
                 とじる
               </button>
             </div>
             <!-- /.modal-btn modal-btn-contact -->
+            <input type="hidden" name="code" value="utf8">
           </form>
 
           <p class="powered-by-formmailer">
