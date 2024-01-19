@@ -66,7 +66,7 @@ const props = defineProps({
 
 .modal-body-list{
   @include mq(ls) {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     margin-bottom: 10px;
     }
 }
@@ -100,7 +100,7 @@ textarea {
 
   @include mq(ls) {
     height: 70px;
-    font-size: 1rem;
+    font-size: .8rem;
   }
 }
 
@@ -111,7 +111,7 @@ textarea {
   margin-bottom: 30px;
 
   @include mq(ls) {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
   }
 }
 
@@ -128,7 +128,7 @@ textarea {
 
    @include mq(ls) {
     width: 90px;
-    font-size: 0.75rem;
+    font-size: .9rem;
     padding: 10px 10px;
     }
 }
