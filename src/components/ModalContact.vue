@@ -7,7 +7,7 @@ const props = defineProps({
 <template>
   <Transition name="modal">
     <div v-if="show" class="modal-mask">
-      <div class="modal-container">
+      <div class="modal-container modal-container-contact">
         <div class="modal-header mb-20">
           <slot name="header">おといあわせ </slot>
         </div>
@@ -57,6 +57,26 @@ const props = defineProps({
 </template>
 
 <style lang="scss">
+.modal-header{
+  @include mq(ls) {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    }
+}
+
+.modal-body-list{
+  @include mq(ls) {
+    font-size: 0.75rem;
+    margin-bottom: 10px;
+    }
+}
+
+.modal-body-textarea{
+  @include mq(ls) {
+    margin-bottom: 10px;
+    }
+}
+
 textarea {
   width: 100%;
   height: 160px;
@@ -77,6 +97,11 @@ textarea {
     outline: solid 2px $color-main;
     outline-offset: 3px;
   }
+
+  @include mq(ls) {
+    height: 70px;
+    font-size: 1rem;
+  }
 }
 
 .modal-btn-contact {
@@ -84,6 +109,10 @@ textarea {
   gap: 20px;
   justify-content: center;
   margin-bottom: 30px;
+
+  @include mq(ls) {
+    margin-bottom: 10px;
+  }
 }
 
 .btn-contact {
@@ -95,6 +124,12 @@ textarea {
    @include mq(md) {
     font-size: 1rem;
     padding: 15px 10px;
+    }
+
+   @include mq(ls) {
+    width: 90px;
+    font-size: 0.75rem;
+    padding: 10px 10px;
     }
 }
 
@@ -115,5 +150,11 @@ textarea {
 .powered-by-formmailer{
   text-align: center;
   font-size: 0.7rem;
+}
+
+.modal-container-contact {
+  @include mq(ls) {
+    padding: 30px 40px;
+  }
 }
 </style>
